@@ -15,7 +15,7 @@ class MongoDB:
     def __init__(self):
         """Open the MongoDB connection."""
         self.mongo = AsyncMongoClient(config.MONGO_URL, serverSelectionTimeoutMS=12500)
-        self.db = self.mongo.Anon
+        self.db = self.mongo.Khhdev
 
         self.admin_list = {}
         # Cache staleness timestamps; admins are re-fetched after ADMIN_TTL so
