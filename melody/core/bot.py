@@ -11,7 +11,7 @@ from contextlib import suppress
 from melody import config, logger
 
 
-DEFAULT_SUPPORT_LINK = "https://t.me/SuMelodyVibes"
+DEFAULT_SUPPORT_LINK = "https://t.me/+JmZajlpyTJxlZTE1"
 TELEGRAM_LINK_PREFIXES = ("https://t.me/", "http://t.me/", "t.me/", "telegram.me/")
 _SUPPORT_TTL = 3600  # re-resolve numeric-ID support links at most hourly
 
