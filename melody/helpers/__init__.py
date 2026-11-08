@@ -11,6 +11,7 @@ from ._inline import Inline
 from ._queue import Queue
 from ._thumbnails import Thumbnail
 from ._utilities import Utilities
+from ._autoplay import autoplay
 
 buttons = Inline()
 utils = Utilities()
