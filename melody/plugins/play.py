@@ -4,6 +4,7 @@
 
 
 import asyncio
+from contextlib import suppress
 from html import escape
 
 from pyrogram import filters, types
@@ -63,6 +64,10 @@ async def play_hndlr(
     url: str | None = None,
     shuffle: bool = False,
 ) -> None:
+    # 🟢 User ပို့လိုက်သော /play command မက်ဆေ့ချ်ကို အလိုအလျောက် ဖျက်ပစ်ရန်
+    with suppress(Exception):
+        await m.delete()
+
     sent = await m.reply_text(m.lang["play_searching"])
     file = None
     mention = m.from_user.mention
@@ -188,15 +193,19 @@ async def play_hndlr(
                     _dl_task = None
                 else:
                     await sent.edit_text(m.lang["play_downloading"])
-                    file.file_path = await yt.download(file.id, video=video)
+                    file.file_path = yt.download(file.id, video=video)
 
     if _dl_task and not _dl_task.done():
         _dl_task.cancel()
 
     async with anon.transition(m.chat.id):
         if await db.get_call(m.chat.id):
-            return await sent.edit_text(
-                m.lang["play_queued"].format(
+            # Queue ဝင်သွားသောအခါ Searching စာသားကို ဖျက်ပစ်ရန်
+            with suppress(Exception):
+                await sent.delete()
+            return await app.send_message(
+                chat_id=m.chat.id,
+                text=m.lang["play_queued"].format(
                     0,
                     escape(file.url, quote=True),
                     escape(file.title),
@@ -204,8 +213,11 @@ async def play_hndlr(
                     m.from_user.mention,
                 )
             )
+        
+        # တိုက်ရိုက်သီချင်းစတင်ဖွင့်သောအခါ Searching စာသားကို ဖျက်ပစ်ရန်
+        with suppress(Exception):
+            await sent.delete()
         await anon.play_media(chat_id=m.chat.id, message=sent, media=file, _locked=True)
     if not tracks:
         return
     await announce_playlist(m, tracks)
-
