@@ -94,7 +94,10 @@ class TgCall(PyTgCalls):
 
         await client.leave_call(chat_id, close=False)
         queue.clear(chat_id)
-        autoplay.reset(chat_id)  # Autoplay history reset
+        try:
+            autoplay.reset(chat_id)  # Autoplay history များကို ရှင်းလင်းပေးခြင်း
+        except Exception:
+            pass
         await db.remove_call(chat_id)
         await db.set_loop(chat_id, 0)
 
@@ -155,18 +158,12 @@ class TgCall(PyTgCalls):
         if is_live and "|" in str(media.file_path):
             media_path, audio_path = media.file_path.split("|", 1)
 
-        # Reconnect flags apply to URL inputs only (ignored for local files).
-        # pytgcalls strips flags the installed ffmpeg doesn't advertise, so
-        # newer flags (>= 6.1/7.1) degrade gracefully on older builds.
         ffmpeg_args = []
         if str(media_path).startswith(("http://", "https://")):
             ffmpeg_args.append(
-                # Base (>= 5.0): reconnect, cover non-seekable, cap backoff.
                 "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5 "
-                # Retry TCP/TLS and transient 5xx (>= 6.1).
                 "-reconnect_on_network_error 1 "
                 "-reconnect_on_http_error 429,500,502,503,504 "
-                # Bound retries: 8 attempts, 30s backoff (>= 7.1).
                 "-reconnect_max_retries 8 -reconnect_delay_total_max 30"
             )
         if seek_time > 1:
@@ -196,7 +193,6 @@ class TgCall(PyTgCalls):
                     _thumb = await _thumb_task
                 media.time = 1
                 await db.add_call(chat_id)
-                # Prefetch next track; skipped for live (never ends).
                 _next = queue.get_next(chat_id, check=True)
                 if (
                     not is_live
@@ -316,12 +312,20 @@ class TgCall(PyTgCalls):
 
         media = queue.get_next(chat_id)
 
-        # Guard before any attribute access: empty queue ends playback,
-        # unless autoplay can find a related track first.
+        # Autoplay logic ပုံစံဖြင့် ဆက်စပ်သီချင်း ရှာဖွေခြင်း
         if not media:
             if current and await db.get_autoplay(chat_id):
-                return await self._autoplay(chat_id, current)
-            return await self._stop(chat_id)
+                try:
+                    related = await autoplay.get_related(
+                        chat_id, current, video=current.video
+                    )
+                    if related:
+                        queue.add(chat_id, related)
+                        media = related
+                except Exception:
+                    pass
+            if not media:
+                return await self._stop(chat_id)
 
         try:
             if media.message_id:
@@ -350,32 +354,6 @@ class TgCall(PyTgCalls):
         media.message_id = msg.id
         await self._play_media(chat_id, msg, media)
 
-    async def _autoplay(self, chat_id: int, current) -> None:
-        """Queue a related track using autoplay helper and keep playing."""
-        _lang = await lang.get_lang(chat_id)
-        
-        
-        media = await autoplay.get_related(chat_id, current, video=current.video)
-        if not media:
-            autoplay.reset(chat_id)
-            return await self._stop(chat_id)
-
-        media.user = _lang["autoplay_label"]
-        msg = await app.send_message(
-            chat_id=chat_id,
-            text=_lang["autoplay_next"].format(
-                escape(media.url or "", quote=True), escape(media.title or "")
-            ),
-        )
-        media.file_path = await yt.download(media.id, video=media.video)
-        if not media.file_path:
-            await msg.edit_text(_lang["error_no_file"].format(config.SUPPORT_CHAT))
-            return await self._stop(chat_id)
-
-        queue.add(chat_id, media)
-        media.message_id = msg.id
-        await self._play_media(chat_id, msg, media)
-
     async def ping(self) -> float:
         async def get_ping(client) -> float:
             return await asyncio.to_thread(lambda: client.ping)
@@ -401,6 +379,10 @@ class TgCall(PyTgCalls):
 
     async def boot(self) -> None:
         PyTgCallsSession.notice_displayed = True
+        try:
+            await db.reset_all_autoplay()
+        except Exception:
+            pass
         for ub in userbot.clients:
             client = PyTgCalls(ub, cache_duration=300)
             await client.start()
@@ -415,7 +397,6 @@ class TgCall(PyTgCalls):
         if not clients:
             return
 
-        # stop() skips message deletion during shutdown via is_shutting_down().
         for chat_id in list(db.active_calls):
             with suppress(Exception):
                 await self.stop(chat_id)
