@@ -92,7 +92,12 @@ class TgCall(PyTgCalls):
             except Exception:
                 pass
 
-        await client.leave_call(chat_id, close=False)
+        # NotInCallError ကဲ့သို့သော error များကို ကျော်လွန်နိုင်ရန် try-except ထည့်သွင်းခြင်း
+        try:
+            await client.leave_call(chat_id, close=False)
+        except Exception:
+            pass
+
         queue.clear(chat_id)
         try:
             autoplay.reset(chat_id)
