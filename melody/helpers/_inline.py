@@ -3,10 +3,11 @@
 # This file is part of Melody
 
 
+import re
 from pyrogram import enums, types
 
-from melody import app, config, lang
-from melody.core.lang import format_lang_name
+from melody import config, logger
+from melody.helpers import utils
 
 
 class Inline:
@@ -183,6 +184,20 @@ class Inline:
                         text=_text,
                         category=_category,
                         callback_data=f"controls {_action} {chat_id} q",
+                    )
+                ]
+            ]
+        )
+
+    def thumb_markup(self, chat_id: int, enabled: bool) -> types.InlineKeyboardMarkup:
+        """Thumbnail On/Off ခလုတ်များ ဖန်တီးရန်"""
+        return self.ikm(
+            [
+                [
+                    self._button(
+                        text="✅ Enabled" if enabled else "❌ Disabled",
+                        category="enabled" if enabled else "disabled",
+                        callback_data=f"thumb_toggle {chat_id}",
                     )
                 ]
             ]
