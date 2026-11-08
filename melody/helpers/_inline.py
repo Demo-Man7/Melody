@@ -6,7 +6,8 @@
 import re
 from pyrogram import enums, types
 
-from melody import config, logger
+from melody import config, logger, lang
+from melody.core.lang import format_lang_name
 from melody.helpers import utils
 
 
