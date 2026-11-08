@@ -111,8 +111,8 @@
     "queue_fetching": "ғᴇᴛᴄʜɪɴɢ ǫᴜᴇᴜᴇ...",
     "restarting": "ʀᴇsᴛᴀʀᴛɪɴɢ...",
     "restarted": "ʀᴇsᴛᴀʀᴛ ɪɴ ᴩʀᴏɢʀᴇss. ᴅᴏɴ'ᴛ ᴡᴏʀʀʏ, ɪᴛ'ʟʟ ᴏɴʟʏ ᴛᴀᴋᴇ ᴀ ғᴇᴡ sᴇᴄᴏɴᴅs… ᴍᴀʏʙᴇ.",
-    "start_pm": "<blockquote><b>ʜᴇʏ</b> {0}! </blockquote>\n\n<blockquote><b>ɪ'ᴍ</b> <b>{1}</b></blockquote>\n<blockquote><b><i> ᴀ ᴍᴜsɪᴄ ᴩʟᴀʏᴇʀ ғᴏʀ ʏᴏᴜʀ ɢʀᴏᴜᴩ's ᴠᴏɪᴄᴇ ᴄʜᴀᴛs.</i></b>\n\n<b><i>ᴛᴀᴩ ʜᴇʟᴩ ᴛᴏ sᴇᴇ ᴇᴠᴇʀʏᴛʜɪɴɢ ɪ ᴄᴀɴ ᴅᴏ.</i></b></blockquote>",
-    "start_gp": "<blockquote>ʜᴇʏ! \n\nɪ'ᴍ <b>{0}</b> — ᴀ ᴍᴜsɪᴄ ᴩʟᴀʏᴇʀ ғᴏʀ ʏᴏᴜʀ ɢʀᴏᴜᴩ's ᴠᴏɪᴄᴇ ᴄʜᴀᴛs.</blockquote>\n\n<i>ᴀᴅᴅ ᴍᴇ ᴛᴏ ᴀ ɢʀᴏᴜᴩ ᴀɴᴅ use /play ᴛᴏ sᴛᴀʀᴛ sᴛʀᴇᴀᴍɪɴɢ.</i>",
+    "start_pm": "<blockquote><b>ʜᴇʏ</b> {0}! </blockquote>\n<blockquote><b>ɪ'ᴍ</b> <b>{1}</b></blockquote>\n<blockquote><b><i> ᴀ ᴍᴜsɪᴄ ᴩʟᴀʏᴇʀ ғᴏʀ ʏᴏᴜʀ ɢʀᴏᴜᴩ's ᴠᴏɪᴄᴇ ᴄʜᴀᴛs.</i></b>\n\n<b><i>ᴛᴀᴩ ʜᴇʟᴩ ᴛᴏ sᴇᴇ ᴇᴠᴇʀʏᴛʜɪɴɢ ɪ ᴄᴀɴ ᴅᴏ.</i></b></blockquote>",
+    "start_gp": "<blockquote>ʜᴇʏ! \nɪ'ᴍ <b>{0}</b> — ᴀ ᴍᴜsɪᴄ ᴩʟᴀʏᴇʀ ғᴏʀ ʏᴏᴜʀ ɢʀᴏᴜᴩ's ᴠᴏɪᴄᴇ ᴄʜᴀᴛs.</blockquote>\n\n<i>ᴀᴅᴅ ᴍᴇ ᴛᴏ ᴀ ɢʀᴏᴜᴩ ᴀɴᴅ use /play ᴛᴏ sᴛᴀʀᴛ sᴛʀᴇᴀᴍɪɴɢ.</i>",
     "start_settings": "<blockquote><u><b>{0} sᴇᴛᴛɪɴɢs</b></u>\n\nᴄʟɪᴄᴋ ᴛʜᴇ ʙᴜᴛᴛᴏɴs ʙᴇʟᴏᴡ ᴛᴏ ᴄʜᴀɴɢᴇ ᴛʜɪs ᴄʜᴀᴛ's ᴄᴜʀʀᴇɴᴛ sᴇᴛᴛɪɴɢs.</blockquote>",
     "stats_fetching": "ғᴇᴛᴄʜɪɴɢ sᴛᴀᴛs...",
     "stats_sudo": "\n\n<b>ᴍᴏᴅᴜʟᴇs:</b> {0}\n<b>ᴩʟᴀᴛғᴏʀᴍ:</b> {1}\n<b>ʀᴀᴍ uᴜsᴀɢᴇ:</b> <code>{0}ᴍʙ | {1}ɢʙ</code>\n<b>ᴄᴩᴜ usᴀɢᴇ:</b> <code>{2}% ({3} ᴄᴏʀᴇs)</code>\n<b>sᴛᴏʀᴀɢᴇ:</b> <code>{4}ɢʙ | {5}ɢʙ</code>\n\n<b>ᴩʏᴛʜᴏɴ:</b> <code>v{6}</code>\n<b>ᴩʏʀᴏɢʀᴀᴍ:</b> <code>v{7}</code>\n<b>ᴩʏᴛɢᴄᴀʟʟs:</b> <code>v{8}</code>",
@@ -179,5 +179,5 @@
     "rich_replay": "🔁",
     "rich_skip": "⏭",
     "rich_stop": "⏹",
-    "rich_requested": "ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ {0}"
+    "rich_requested": "ʀᴇǫᴜᴇsᴛᴇᴅ ʙʏ {0} \n\n<b>သီချင်းနားထောင်ခြင်းသည် \n ဒဏ်ရာများကို အထူးကုစားပေးသည်</b>"
 }
