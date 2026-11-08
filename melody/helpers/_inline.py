@@ -279,7 +279,7 @@ class Inline:
             [
                 self._button(
                     text=lang["add_me"],
-                    category="play",
+                    category="menu",
                     url=f"https://t.me/{app.username}?startgroup=true",
                 )
             ],
