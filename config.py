@@ -33,10 +33,11 @@ class Config:
         self.SESSION2 = getenv("SESSION2", None)
         self.SESSION3 = getenv("SESSION3", None)
 
-        self.SUPPORT_CHANNEL_RAW = getenv("SUPPORT_CHANNEL", "https://t.me/SuMelodyVibes")
-        self.SUPPORT_CHAT_RAW = getenv("SUPPORT_CHAT", "https://t.me/SuMelodyVibes")
+        self.SUPPORT_CHANNEL_RAW = getenv("SUPPORT_CHANNEL", "")
+        self.SUPPORT_CHAT_RAW = getenv("SUPPORT_CHAT", "")
         self.SUPPORT_CHANNEL = self.SUPPORT_CHANNEL_RAW
         self.SUPPORT_CHAT = self.SUPPORT_CHAT_RAW
+        self.OWNER_LINK = getenv("OWNER_LINK","")
 
         self.AUTO_LEAVE: bool = getenv("AUTO_LEAVE", "False").lower() == "true"
         self.AUTO_END: bool = getenv("AUTO_END", "False").lower() == "true"
