@@ -77,7 +77,7 @@ def build_np(
                 buttons=[
                     types.RichMessageButton(
                         text=progress_line(played, media.duration),
-                        style=enums.ButtonStyle.DANGER,
+                        style=enums.ButtonStyle.SUCCESS,
                         callback_data=f"controls status {chat_id}",
                     )
                 ]
@@ -98,7 +98,7 @@ def build_np(
                 ),
                 types.RichMessageButton(
                     text=lang["rich_replay"],
-                    style=enums.ButtonStyle.DANGER,
+                    style=enums.ButtonStyle.SUCCESS,
                     callback_data=f"controls replay {chat_id}",
                 ),
                 types.RichMessageButton(
