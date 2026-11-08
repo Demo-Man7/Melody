@@ -12,7 +12,7 @@ utils = Utilities()
 
 MediaItem = Union[Media, Track]
 
-AUTOPLAY_TAG = "𝐀‌υᴛσᴘʟᴧʏ 🟢"
+AUTOPLAY_TAG = "𝐀‌υᴛσᴘʟᴧʏ🎙"
 MAX_HISTORY = 200  # cap per-chat "played" memory so it never grows unbounded
 
 
