@@ -12,35 +12,11 @@ from pyrogram import errors
 from melody import config, db, logger
 
 lang_codes = {
-    "ar": "العربية",
-    "de": "Deutsch",
     "en": "English",
-    "es": "Español",
-    "fr": "Français",
-    "hi": "हिन्दी",
-    "ja": "日本語",
-    "my": "မြန်မာဘာသာ",
-    "pa": "ਪੰਜਾਬੀ",
-    "pt": "Português",
-    "ru": "Русский",
-    "tr": "Türkçe",
-    "zh": "中文"
 }
 
 lang_flags = {
-    "ar": "🇸🇦",
-    "de": "🇩🇪",
     "en": "🇬🇧",
-    "es": "🇪🇸",
-    "fr": "🇫🇷",
-    "hi": "🇮🇳",
-    "ja": "🇯🇵",
-    "my": "🇲🇲",
-    "pa": "🇮🇳",
-    "pt": "🇵🇹",
-    "ru": "🇷🇺",
-    "tr": "🇹🇷",
-    "zh": "🇨🇳",
 }
 
 
