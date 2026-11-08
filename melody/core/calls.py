@@ -16,7 +16,7 @@ from pytgcalls import PyTgCalls, exceptions, types
 from pytgcalls.pytgcalls_session import PyTgCallsSession
 
 from melody import (app, config, db, lang, logger,
-                   queue, thumb, userbot, yt)
+                   queue, thumb, userbot, yt, autoplay)
 from melody import is_shutting_down
 from melody.helpers import Media, Track, buttons
 from melody.helpers import _rich
@@ -94,6 +94,7 @@ class TgCall(PyTgCalls):
 
         await client.leave_call(chat_id, close=False)
         queue.clear(chat_id)
+        autoplay.reset(chat_id)  # Autoplay history reset
         await db.remove_call(chat_id)
         await db.set_loop(chat_id, 0)
 
@@ -350,10 +351,13 @@ class TgCall(PyTgCalls):
         await self._play_media(chat_id, msg, media)
 
     async def _autoplay(self, chat_id: int, current) -> None:
-        """Queue a related track and keep playing; stop when nothing found."""
+        """Queue a related track using autoplay helper and keep playing."""
         _lang = await lang.get_lang(chat_id)
-        media = await yt.related(current, video=current.video)
+        
+        
+        media = await autoplay.get_related(chat_id, current, video=current.video)
         if not media:
+            autoplay.reset(chat_id)
             return await self._stop(chat_id)
 
         media.user = _lang["autoplay_label"]
