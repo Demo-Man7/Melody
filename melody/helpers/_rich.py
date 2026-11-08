@@ -44,7 +44,8 @@ def build_np(
     """
     blocks = []
     if photo:
-        image = thumb or media.thumbnail or config.DEFAULT_THUMB
+        # သီချင်းဘယ်ဟာပဲဖွင့်ဖွင့် config ထဲက DEFAULT_THUMB ကိုသာ ပုံသေသုံးရန်
+        image = config.DEFAULT_THUMB
         blocks.append(
             types.InputRichBlockPhoto(photo=types.InputMediaPhoto(image))
         )
@@ -98,6 +99,7 @@ def build_np(
                     text=lang["rich_replay"],
                     callback_data=f"controls replay {chat_id}",
                 ),
+        async def generate(self, song: Track, size=(1280, 720)) -> str:
                 types.RichMessageButton(
                     text=lang["rich_skip"],
                     callback_data=f"controls skip {chat_id}",
