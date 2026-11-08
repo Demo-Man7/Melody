@@ -169,7 +169,7 @@
     "autoplay_label": "ᴀᴜᴛᴏᴩʟᴀʏ",
     "autoplay_next": "🤖 <b>ᴀᴜᴛᴏᴩʟᴀʏɪɴɢ ᴀ ʀᴇʟᴀᴛᴇᴅ ᴛʀᴀᴄᴋ:</b>\n\n<b><a href={0}>{1}</a></b>",
     "thumb_status": "Thumbnail Mode: {}\n\nWhen enabled, music thumbnails will be generated and shown while playing songs.",
-    "thumb": "Thumbnail"
+    "thumb": "Thumbnail",
     "channel_play_on": "▶️ ᴄʜᴀɴɴᴇʟ ᴩʟᴀʏ ᴇɴᴀʙʟᴇᴅ. ᴀᴜᴅɪᴏ ᴩᴏsᴛᴇᴅ ɪɴ <b>{0}</b> ᴡɪʟʟ ɴᴏᴡ ʙᴇ ᴩʟᴀʏᴇᴅ ʜᴇʀᴇ.",
     "channel_play_off": "⏹ ᴄʜᴀɴɴᴇʟ ᴩʟᴀʏ ᴅɪsᴀʙʟᴇᴅ.",
     "channel_play_usage": "<b>ᴜsᴀɢᴇ:</b>\n\n/ᴄʜᴀɴɴᴇʟᴩʟᴀʏ [ᴏɴ|ᴏғғ]",
