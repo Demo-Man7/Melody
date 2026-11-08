@@ -44,7 +44,7 @@ def build_np(
     """
     blocks = []
     if photo:
-        # သီချင်းဘယ်ဟာပဲဖွင့်ဖွင့် config ထဲက DEFAULT_THUMB ကိုသာ ပုံသေသုံးရန်
+        
         image = config.DEFAULT_THUMB
         blocks.append(
             types.InputRichBlockPhoto(photo=types.InputMediaPhoto(image))
@@ -91,21 +91,23 @@ def build_np(
                     style=(
                         enums.ButtonStyle.PRIMARY
                         if playing
-                        else enums.ButtonStyle.SUCCESS
+                        else enums.ButtonStyle.PRIMARY
                     ),
                     callback_data=f"controls {'pause' if playing else 'resume'} {chat_id}",
                 ),
                 types.RichMessageButton(
                     text=lang["rich_replay"],
+                    style=enums.ButtonStyle.PRIMARY,
                     callback_data=f"controls replay {chat_id}",
                 ),
                 types.RichMessageButton(
                     text=lang["rich_skip"],
+                    style=enums.ButtonStyle.PRIMARY,
                     callback_data=f"controls skip {chat_id}",
                 ),
                 types.RichMessageButton(
                     text=lang["rich_stop"],
-                    style=enums.ButtonStyle.DANGER,
+                    style=enums.ButtonStyle.PRIMARY,
                     callback_data=f"controls stop {chat_id}",
                 ),
             ]
