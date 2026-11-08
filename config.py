@@ -25,7 +25,7 @@ class Config:
         self.LOGGER_ID = _int_env("LOGGER_ID")
         self.OWNER_ID = _int_env("OWNER_ID")
 
-        self.DURATION_LIMIT = _int_env("DURATION_LIMIT", 60) * 60
+        self.DURATION_LIMIT = _int_env("DURATION_LIMIT", 240) * 60
         self.QUEUE_LIMIT = _int_env("QUEUE_LIMIT", 20)
         self.PLAYLIST_LIMIT = _int_env("PLAYLIST_LIMIT", 20)
 
