@@ -95,7 +95,7 @@ class TgCall(PyTgCalls):
         await client.leave_call(chat_id, close=False)
         queue.clear(chat_id)
         try:
-            autoplay.reset(chat_id)  # Autoplay history များကို ရှင်းလင်းပေးခြင်း
+            autoplay.reset(chat_id)
         except Exception:
             pass
         await db.remove_call(chat_id)
@@ -126,7 +126,13 @@ class TgCall(PyTgCalls):
         _lang = await lang.get_lang(chat_id)
         _thumb = None
         _thumb_task = None
-        _no_thumb = await db.get_thumbnail_mode(chat_id)
+        
+        # Thumbnail စနစ်အတွက် _thumbnails.py နှင့် database mode ကို စစ်ဆေးခြင်း
+        try:
+            _no_thumb = not await db.get_thumb(chat_id)
+        except Exception:
+            _no_thumb = False
+
         if config.THUMB_GEN and not seek_time and not _no_thumb:
             if isinstance(media, Track):
                 _thumb_task = asyncio.create_task(thumb.generate(media))
@@ -151,7 +157,6 @@ class TgCall(PyTgCalls):
             await message.edit_text(_lang["error_no_file"].format(config.SUPPORT_CHAT))
             return await self.play_next(chat_id)
 
-        # Live HLS is demuxed: "video|audio" pair for video mode, else one URL.
         is_live = getattr(media, "is_live", False)
         media_path = media.file_path
         audio_path = None
@@ -312,7 +317,6 @@ class TgCall(PyTgCalls):
 
         media = queue.get_next(chat_id)
 
-        # Autoplay logic ပုံစံဖြင့် ဆက်စပ်သီချင်း ရှာဖွေခြင်း
         if not media:
             if current and await db.get_autoplay(chat_id):
                 try:
@@ -392,7 +396,6 @@ class TgCall(PyTgCalls):
 
 
     async def exit(self) -> None:
-        """Leave active calls and release PyTgCalls resources (shutdown path)."""
         clients = list(self.clients)
         if not clients:
             return
