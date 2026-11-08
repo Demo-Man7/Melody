@@ -13,10 +13,12 @@ from melody import config, db, logger
 
 lang_codes = {
     "en": "English",
+    "mn": "မြန်မာ",
 }
 
 lang_flags = {
     "en": "🇬🇧",
+    "mn": "🇲🇲",
 }
 
 
