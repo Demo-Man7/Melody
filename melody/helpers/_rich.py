@@ -99,7 +99,6 @@ def build_np(
                     text=lang["rich_replay"],
                     callback_data=f"controls replay {chat_id}",
                 ),
-        async def generate(self, song: Track, size=(1280, 720)) -> str:
                 types.RichMessageButton(
                     text=lang["rich_skip"],
                     callback_data=f"controls skip {chat_id}",
