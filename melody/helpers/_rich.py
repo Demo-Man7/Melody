@@ -3,6 +3,7 @@
 # This file is part of Melody
 
 
+import re
 from pyrogram import enums, types
 
 from melody import config, logger
@@ -20,6 +21,12 @@ def progress_line(played: str, duration: str, steps: int = 10) -> str:
 
 def _time(sec: int) -> str:
     return utils.format_duration(sec)
+
+
+def clean_user_name(user_str):
+    if not user_str:
+        return "Unknown"
+    return re.sub(r'<[^>]+>', '', str(user_str))
 
 
 def build_np(
@@ -56,9 +63,10 @@ def build_np(
         )
 
     meta = "🔴 LIVE" if media.is_live else media.duration
+    user_display = clean_user_name(media.user)
     blocks.append(
         types.InputRichBlockParagraph(
-            text=f"{meta} • {lang['rich_requested'].format(media.user or 'Unknown')}"
+            text=f"{meta} • {lang['rich_requested'].format(user_display)}"
         )
     )
 
@@ -121,7 +129,6 @@ async def edit_placeholder(
         return True
     except Exception as ex:
         logger.warning("rich panel send failed for %s: %r", chat_id, ex)
-        # Bot may lack photo rights in this chat: retry without the picture.
         try:
             await message.edit_text(
                 rich_message=build_np(
