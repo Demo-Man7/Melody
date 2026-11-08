@@ -15,11 +15,11 @@ async def _send_private_start(query: types.CallbackQuery, lang_dict: dict):
         await db.add_user(query.from_user.id)
 
     await app.refresh_support_links()
+    # quote=False ကို ဖယ်ရှားပေးလိုက်ပါပြီ
     await query.message.reply_photo(
         photo=config.START_IMG,
         caption=lang_dict["start_pm"].format(query.from_user.first_name, app.name),
         reply_markup=buttons.start_key(lang_dict, True),
-        quote=False,
     )
 
 
