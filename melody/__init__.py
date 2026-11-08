@@ -69,7 +69,7 @@ from melody.core.youtube import YouTube
 tg = Telegram()
 yt = YouTube()
 
-from melody.helpers import Queue, Thumbnail
+from melody.helpers import Queue, Thumbnail, autoplay  # <-- ဒီနေရာတွင် autoplay ကို ထည့်သွင်းပေးခြင်း
 
 queue = Queue()
 thumb = Thumbnail()
