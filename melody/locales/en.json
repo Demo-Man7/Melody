@@ -172,10 +172,10 @@
     "channel_play_off": "⏹ Channel play disabled.",
     "channel_play_usage": "<b>Usage:</b>\n\n/channelplay [on|off]",
     "channel_no_linked": "No channel is linked to this group. Link a channel in your group settings first.",
-    "rich_pause": "⏸ Pause",
-    "rich_resume": "▶️ Resume",
-    "rich_replay": "🔁 Replay",
-    "rich_skip": "⏭ Skip",
-    "rich_stop": "⏹ Stop",
+    "rich_pause": "⏸",
+    "rich_resume": "▶️",
+    "rich_replay": "🔁",
+    "rich_skip": "⏭",
+    "rich_stop": "⏹",
     "rich_requested": "Requested by {0}"
 }
