@@ -296,6 +296,13 @@ class Inline:
                     text=lang["channel"], category="link", url=config.SUPPORT_CHANNEL
                 ),
             ],
+            [
+                self._button(
+                    text="𝙾𝚆𝙽𝙴𝚁",
+                    category="disabled",
+                    url=config.OWNER_LINK,
+                )
+            ],
         ]
         if not private:
             rows += [
