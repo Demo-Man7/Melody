@@ -15,7 +15,7 @@ def progress_line(played: str, duration: str, steps: int = 10) -> str:
     cur = utils.to_seconds(played)
     total = utils.to_seconds(duration)
     pos = min(int((cur / total) * steps), steps - 1) if total > 0 else 0
-    bar = "—" * pos + "◉" + "—" * (steps - pos - 1)
+    bar = "—" * pos + "𖹭" + "—" * (steps - pos - 1)
     return f"{played} {bar} {duration}"
 
 
