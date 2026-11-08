@@ -17,7 +17,6 @@ async def _help(_, m: types.Message):
     await m.reply_text(
         text=m.lang["help_menu"],
         reply_markup=buttons.help_markup(m.lang),
-        quote=True,
     )
 
 
@@ -36,7 +35,6 @@ async def start(_, message: types.Message):
         await message.reply_text(
             message.lang["lang_choose"],
             reply_markup=buttons.lang_markup(current, "lang_start"),
-            quote=True,
         )
         await utils.send_log(message)
         return
@@ -58,7 +56,6 @@ async def start(_, message: types.Message):
         photo=config.START_IMG,
         caption=_text,
         reply_markup=key,
-        quote=not private,
     )
 
     if private:
@@ -87,7 +84,6 @@ async def settings(_, message: types.Message):
             message.lang, admin_only, cmd_delete, _language, message.chat.id,
             no_thumbnail=no_thumbnail, autoplay=autoplay,
         ),
-        quote=True,
     )
 
 
@@ -108,5 +104,4 @@ async def _new_member(_, message: types.Message):
             await message.reply_text(
                 message.lang["lang_choose"],
                 reply_markup=buttons.lang_markup(current, "lang_group"),
-                quote=True,
             )
