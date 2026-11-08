@@ -98,7 +98,7 @@ def build_np(
                 ),
                 types.RichMessageButton(
                     text=lang["rich_replay"],
-                    style=enums.ButtonStyle.PRIMARY,
+                    style=enums.ButtonStyle.DANGER,
                     callback_data=f"controls replay {chat_id}",
                 ),
                 types.RichMessageButton(
@@ -108,7 +108,7 @@ def build_np(
                 ),
                 types.RichMessageButton(
                     text=lang["rich_stop"],
-                    style=enums.ButtonStyle.PRIMARY,
+                    style=enums.ButtonStyle.DANGER,
                     callback_data=f"controls stop {chat_id}",
                 ),
             ]
