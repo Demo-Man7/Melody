@@ -50,23 +50,8 @@ class Thumbnail:
             await self.session.close()
 
     async def generate(self, song: Track, size=(1280, 720)) -> str:
-        if not song.thumbnail:
-            return config.DEFAULT_THUMB
-
-        cached = self.cached_path(song.id)
-        if cached:
-            return cached
-
-        task = self.pending.get(song.id)
-        if not task:
-            task = asyncio.create_task(self._generate(song, size))
-            self.pending[song.id] = task
-
-        try:
-            return await task
-        finally:
-            if self.pending.get(song.id) is task:
-                self.pending.pop(song.id, None)
+        """သီချင်းဘယ်ဟာပဲဖွင့်ဖွင့် config ထဲက DEFAULT_THUMB ကိုသာ ပုံသေသုံးရန်"""
+        return config.DEFAULT_THUMB
 
     def cached_path(self, song_id: str) -> str | None:
         for suffix in ("jpg", "png"):
