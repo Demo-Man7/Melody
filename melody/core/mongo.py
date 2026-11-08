@@ -241,27 +241,34 @@ class MongoDB:
         else:
             self.cmd_delete.discard(chat_id)
 
-    # THUMBNAIL MODE METHODS
-    async def get_thumbnail_mode(self, chat_id: int) -> bool:
-        """Return True when thumbnails are DISABLED for this chat. Default: disabled."""
+    # THUMBNAIL MODE METHODS (Updated with get_thumb & set_thumb)
+    async def get_thumb(self, chat_id: int) -> bool:
+        """Thumbnail ဖွင့်/ပိတ် အခြေအနေကို စစ်ဆေးခြင်း (Plugin များအတွက်)"""
         if chat_id not in self.thumbnail_enabled:
             doc = await self.chatsdb.find_one({"_id": chat_id})
             if doc and doc.get("thumbnail_enabled"):
                 self.thumbnail_enabled.add(chat_id)
-        # Disabled when NOT in the enabled list (default = disabled)
         return chat_id not in self.thumbnail_enabled
 
-    async def set_thumbnail_mode(self, chat_id: int, disable: bool = False) -> None:
-        """Set whether thumbnails are disabled (disable=True means no thumbnail)."""
+    async def set_thumb(self, chat_id: int, state: bool) -> None:
+        """Thumbnail ကို On/Off လုပ်ရန်"""
         await self.chatsdb.update_one(
             {"_id": chat_id},
-            {"$set": {"thumbnail_enabled": not disable}},
+            {"$set": {"thumbnail_enabled": not state}},
             upsert=True,
         )
-        if disable:
+        if not state:
             self.thumbnail_enabled.discard(chat_id)
         else:
             self.thumbnail_enabled.add(chat_id)
+
+    async def get_thumbnail_mode(self, chat_id: int) -> bool:
+        """Return True when thumbnails are DISABLED for this chat."""
+        return await self.get_thumb(chat_id) is False
+
+    async def set_thumbnail_mode(self, chat_id: int, disable: bool = False) -> None:
+        """Set whether thumbnails are disabled (disable=True means no thumbnail)."""
+        await self.set_thumb(chat_id, not disable)
 
     # LANGUAGE METHODS
     async def set_lang(self, chat_id: int, lang_code: str):
