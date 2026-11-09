@@ -60,7 +60,7 @@ class Thumbnail:
             self.pending.pop(song.id, None)
 
     def cached_path(self, song_id: str) -> str | None:
-        for suffix: str in ("jpg", "png"):
+        for suffix in ("jpg", "png"):  # 👈 type hint ဖြုတ်ပြီးသား
             path = Path("cache") / f"{song_id}.{suffix}"
             if path.exists():
                 return str(path)
