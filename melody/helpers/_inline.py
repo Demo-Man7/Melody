@@ -94,7 +94,7 @@ class Inline:
             )
         return self.ikm(keyboard)
 
-    def help_markup(
+        def help_markup(
         self, _lang: dict, back: bool = False
     ) -> types.InlineKeyboardMarkup:
         if back:
@@ -113,25 +113,29 @@ class Inline:
                 ]
             ]
         else:
-            cbs = [
-                "admins",
-                "lang",
-                "ping",
-                "play",
-                "queue",
-                "sudo",
+            
+            help_items = [
+                ("admins", _lang.get("help_admins", "Admins")),
+                ("lang", _lang.get("help_lang", "Language")),
+                ("ping", _lang.get("help_ping", "Ping")),
+                ("play", _lang.get("help_play", "Play")),
+                ("queue", _lang.get("help_queue", "Queue")),
+                ("sudo", _lang.get("help_sudo", "Sudo")),
             ]
+            
             buttons = [
                 self._button(
-                    text=_lang[f"help_{i}"],
+                    text=text,
                     category="menu",
                     callback_data=f"help {cb}",
                 )
-                for i, cb in enumerate(cbs)
+                for cb, text in help_items
             ]
+            
             rows = [buttons[i : i + 2] for i in range(0, len(buttons), 2)]
 
         return self.ikm(rows)
+
 
     def lang_markup(
         self, _lang: str, action: str = "lang_change"
