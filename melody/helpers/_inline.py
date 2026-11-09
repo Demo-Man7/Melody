@@ -115,13 +115,10 @@ class Inline:
         else:
             cbs = [
                 "admins",
-                "auth",
-                "blist",
                 "lang",
                 "ping",
                 "play",
                 "queue",
-                "stats",
                 "sudo",
             ]
             buttons = [
@@ -132,7 +129,7 @@ class Inline:
                 )
                 for i, cb in enumerate(cbs)
             ]
-            rows = [buttons[i : i + 3] for i in range(0, len(buttons), 3)]
+            rows = [buttons[i : i + 2] for i in range(0, len(buttons), 2)]
 
         return self.ikm(rows)
 
