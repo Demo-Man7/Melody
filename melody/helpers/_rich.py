@@ -149,7 +149,7 @@ async def refresh_np(
     chat_id: int, playing: bool = None, message: types.Message = None
 ):
     """Re-render the current track's rich panel (progress or pause state)."""
-    from melody import app, db, lang, queue, thumbnail
+    from melody import app, db, lang, queue, thumb  # 🟢 thumbnail အစား thumb သို့ ပြင်ဆင်ပြီး
 
     if not config.RICH_UI:
         return None
@@ -162,10 +162,10 @@ async def refresh_np(
     played = _time(min(media.time, media.duration_sec)) if media.duration_sec else None
     _lang = await lang.get_lang(chat_id)
     
-    # 🟢 Thumbnail အသစ်ကို generate လုပ်ပြီး ယူသုံးခြင်း
-    thumb = await thumbnail.generate(media) if media.thumbnail else config.DEFAULT_THUMB
+    # 🟢 thumb.generate ကို သုံးရန် ပြင်ဆင်ပြီး
+    thumb_path = await thumb.generate(media) if media.thumbnail else config.DEFAULT_THUMB
     
-    rich = build_np(_lang, media, chat_id, playing=playing, played=played, thumb=thumb)
+    rich = build_np(_lang, media, chat_id, playing=playing, played=played, thumb=thumb_path)
     try:
         if message is not None:
             return await message.edit_text(rich_message=rich)
