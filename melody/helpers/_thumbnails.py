@@ -25,7 +25,7 @@ class Thumbnail:
         # Font အရွယ်အစားများ
         self.font_n = ImageFont.truetype("melody/helpers/Raleway-Bold.ttf", 22)  # Channel
         self.font_t = ImageFont.truetype("melody/helpers/Raleway-Bold.ttf", 32)  # Title
-        self.font_c = ImageFont.truetype("melody/helpers/Inter-Light.ttf", 20)   # Sub text
+        self.font_c = ImageFont.truetype("melody/helpers/Inter-Light.ttf", 20)   # Extra
         self.font_d = ImageFont.truetype("melody/helpers/Inter-Light.ttf", 20)   # Duration
         
         self.session: aiohttp.ClientSession | None = None
@@ -126,8 +126,8 @@ class Thumbnail:
                 bg.filter(ImageFilter.GaussianBlur(25))
             ).enhance(0.45)
 
-            # 2. 🟢 ကတ်ပြားကို ဘေးဘက်သို့ ပိုဆန့်ပေးခြင်း (ဒုတိယပုံစံအတိုင်း အကျယ်ချဲ့ထားသည်)
-            box = (200, 110, 1080, 610)
+            # 2. 🟢 ကတ်ပြားကို ဘေးဘက်သို့ ပိုဆန့်ပေးရန် ဧရိယာအကျယ်ကို ချဲ့ခြင်း (Width: 190 to 1090)
+            box = (190, 130, 1090, 590)
             region = image.crop(box)
 
             dark_region = ImageEnhance.Brightness(region).enhance(0.7)
@@ -141,13 +141,13 @@ class Thumbnail:
             # 3. 🟢 controls.png ကို ဘေးဘက်သို့ အပြည့်အစုံ ဆန့်ထွက်လာစေရန် ချိန်ညှိခြင်း
             try:
                 controls = Image.open("melody/helpers/controls.png").convert("RGBA")
-                controls_resized = controls.resize((880, 500), Image.Resampling.LANCZOS)
-                image.paste(controls_resized, (200, 110), controls_resized)
+                controls_resized = controls.resize((900, 460), Image.Resampling.LANCZOS)
+                image.paste(controls_resized, (190, 130), controls_resized)
             except Exception:
                 pass
 
             # 4. သီချင်း Thumbnail ပုံငယ်ကို ဘယ်ဘက်ခြမ်းတွင် ထည့်ရန်
-            thumb_size = 145
+            thumb_size = 150
             width, height = source.size
             side_length = min(width, height)
             crop = source.crop(
@@ -167,23 +167,20 @@ class Thumbnail:
             rounded.putalpha(thumb_mask)
 
             # Thumbnail paste မည့်နေရာ
-            image.paste(rounded, (240, 145), rounded)
+            image.paste(rounded, (230, 155), rounded)
 
         # စာသားများ သတ်မှတ်ခြင်း
         channel = (song.channel_name or "Melody")[:22]
         title = (song.title or "Unknown")[:25]
-        duration = song.duration or "3:54"  # ဥပမာကြာချိန်
+        duration = song.duration or "0:00"
 
         draw = ImageDraw.Draw(image)
         
-        # 5. ညာဘက်ခြမ်းတွင် Channel, Title နှင့် Sub text များကို ပုံစံတကျ ဖော်ပြခြင်း
-        draw.text((410, 155), channel, (192, 192, 192), font=self.font_n)
-        draw.text((410, 190), title, (255, 255, 255), font=self.font_t)
-        draw.text((412, 235), "Telegram Music Bot", (200, 200, 200), font=self.font_c)
-        
-        # 🟢 ၆။ ဒုတိယပုံပါ Progress bar ရဲ့ ဘယ်ဘက်နဲ့ ညာဘက်အစွန်ဆုံး အနေအထားအတိုင်း အချိန်များကို ချိန်ညှိခြင်း
-        draw.text((280, 315), "0:24", (200, 200, 200), font=self.font_d)      # ဘယ်ဘက်အစွန်း အချိန်
-        draw.text((945, 315), duration, (200, 200, 200), font=self.font_d)   # ညာဘက်အစွန်း အချိန် (Duration)
+        # 5. Thumbnail ၏ ညာဘက်ခြမ်းတွင် စာသားများနှင့် Duration ကို နေရာတကျ ဖော်ပြခြင်း
+        draw.text((405, 175), channel, (192, 192, 192), font=self.font_n)
+        draw.text((405, 210), title, (255, 255, 255), font=self.font_t)
+        draw.text((407, 255), "Telegram Music Bot", (200, 200, 200), font=self.font_c)
+        draw.text((950, 335), duration, (192, 192, 192), font=self.font_d)
 
         temp = output.with_name(f"{output.stem}.tmp{output.suffix}")
         image.convert("RGB").save(
