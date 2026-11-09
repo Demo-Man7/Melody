@@ -22,9 +22,11 @@ class Thumbnail:
     def __init__(self):
         self.size = (1280, 720)
         self.fill = (255, 255, 255)
-        # Font အရွယ်အစားများ
-        self.font_n = ImageFont.truetype("melody/helpers/Raleway-Bold.ttf", 20)  # Channel
+        # Font အရွယ်အစားများကို 1280x720 resolution နဲ့ ညီအောင် ချိန်ညှိခြင်း
+        self.font_n = ImageFont.truetype("melody/helpers/Raleway-Bold.ttf", 22)  # Channel
         self.font_t = ImageFont.truetype("melody/helpers/Raleway-Bold.ttf", 32)  # Title
+        self.font_c = ImageFont.truetype("melody/helpers/Inter-Light.ttf", 22)   # Extra
+        self.font_d = ImageFont.truetype("melody/helpers/Inter-Light.ttf", 20)   # Duration
         
         self.session: aiohttp.ClientSession | None = None
         self.timeout = aiohttp.ClientTimeout(total=8, connect=3, sock_read=5)
@@ -113,27 +115,38 @@ class Thumbnail:
         with Image.open(BytesIO(data)) as source:
             source = ImageOps.exif_transpose(source).convert("RGBA")
             
-            # 1. နောက်ခံကို ကြီးချဲ့၍ Blur လုပ်ခြင်း
-            image = ImageOps.fit(
+            # 1. နောက်ခံကို ကြီးချဲ့၍ Blur လုပ်ခြင်း (1280x720 ဖြင့်)
+            bg = ImageOps.fit(
                 source,
                 size,
                 method=Image.Resampling.BILINEAR,
                 centering=(0.5, 0.5),
-            ).filter(ImageFilter.GaussianBlur(25))
-            
-            # နောက်ခံကို အနည်းငယ် မှောင်စေရန်
-            image = ImageEnhance.Brightness(image).enhance(0.5)
+            )
+            image = ImageEnhance.Brightness(
+                bg.filter(ImageFilter.GaussianBlur(25))
+            ).enhance(0.45)
 
-            # 2. controls.png ပုံကို မျက်နှာပြင်ပေါ်တွင် အလယ်ဗဟိုကျကျ တိုက်ရိုက် paste လုပ်ရန်[span_2](start_span)[span_2](end_span)
+            # 2. ကတ်ပြားနေရာကို 1280x720 မျက်နှာပြင်၏ အလယ်ဗဟိုသို့ တိကျစွာ ချိန်ညှိခြင်း (Box)
+            box = (240, 140, 1040, 580)
+            region = image.crop(box)
+
+            dark_region = ImageEnhance.Brightness(region).enhance(0.7)
+            mask = Image.new("L", dark_region.size, 0)
+            ImageDraw.Draw(mask).rounded_rectangle(
+                (0, 0, box[2] - box[0], box[3] - box[1]), 35, fill=255
+            )
+
+            image.paste(dark_region, box, mask)
+
+            # 3. controls.png ဖိုင်ကို ကတ်ပြားပေါ်သို့ အလယ်ဗဟိုကျကျ ပေါင်းထည့်ခြင်း
             try:
                 controls = Image.open("melody/helpers/controls.png").convert("RGBA")
-                # controls ပုံ၏ မူလအရွယ်အစားအတိုင်း သို့မဟုတ် မျက်နှာပြင်နှင့် အနေတော်ဖြစ်စေရန် (လိုအပ်ပါက resize လုပ်နိုင်သည်)
-                image.paste(controls, (0, 0), controls)
-            except Exception as e:
-                logger.error(f"Controls overlay error: {e}")
+                image.paste(controls, (270, 320), controls)
+            except Exception:
+                pass
 
-            # 3. သီချင်း Thumbnail ပုံငယ်ကို ကတ်ပြားပေါ်ရှိ နေရာလွတ်တွင် ထောင့်ဝိုင်းပုံစံဖြင့် ထည့်ရန်[span_3](start_span)[span_3](end_span)
-            thumb_size = 130
+            # 4. သီချင်း Thumbnail ပုံငယ်ကို ကတ်ပြား၏ ဘယ်ဘက်ခြမ်းတွင် ထည့်ရန်
+            thumb_size = 150
             width, height = source.size
             side_length = min(width, height)
             crop = source.crop(
@@ -147,23 +160,26 @@ class Thumbnail:
             resize = crop.resize((thumb_size, thumb_size), Image.Resampling.LANCZOS)
 
             thumb_mask = Image.new("L", (thumb_size, thumb_size), 0)
-            ImageDraw.Draw(thumb_mask).rounded_rectangle((0, 0, thumb_size, thumb_size), radius=20, fill=255)
+            ImageDraw.Draw(thumb_mask).rounded_rectangle((0, 0, thumb_size, thumb_size), radius=25, fill=255)
 
             rounded = ImageOps.fit(resize, (thumb_size, thumb_size))
             rounded.putalpha(thumb_mask)
 
-            # Thumbnail paste မည့်နေရာ (controls.png ပုံစံပေါ်မူတည်၍ ချိန်ညှိထားသည်)[span_4](start_span)[span_4](end_span)
-            image.paste(rounded, (280, 180), rounded)
+            # Thumbnail paste မည့်နေရာ (X=290, Y=165)
+            image.paste(rounded, (290, 165), rounded)
 
         # စာသားများ သတ်မှတ်ခြင်း
-        channel = (song.channel_name or "Myanmar Music")[:22]
+        channel = (song.channel_name or "Melody")[:22]
         title = (song.title or "Unknown")[:25]
+        duration = song.duration or "0:00"
 
         draw = ImageDraw.Draw(image)
         
-        # 4. Thumbnail ၏ ညာဘက်ခြမ်းတွင် Channel နှင့် Title ကို နေရာတကျ ဖော်ပြခြင်း[span_5](start_span)[span_5](end_span)
-        draw.text((430, 190), channel, (180, 180, 180), font=self.font_n)
-        draw.text((430, 220), title, (255, 255, 255), font=self.font_t)
+        # 5. Thumbnail ၏ ညာဘက်ခြမ်းတွင် စာသားများ အနေတော် ပေါ်စေရန်
+        draw.text((465, 185), channel, (192, 192, 192), font=self.font_n)
+        draw.text((465, 220), title, (255, 255, 255), font=self.font_t)
+        draw.text((467, 265), "Telegram Music Bot", (200, 200, 200), font=self.font_c)
+        draw.text((950, 340), duration, (192, 192, 192), font=self.font_d)
 
         temp = output.with_name(f"{output.stem}.tmp{output.suffix}")
         image.convert("RGB").save(
