@@ -48,7 +48,7 @@ class Config:
     
         # Rich now-playing panel (photo + styled buttons); falls back to the
         # classic text + inline-keyboard UI when disabled or unsupported.
-        self.RICH_UI: bool = getenv("RICH_UI", "True").lower() == "true"
+        self.RICH_UI: bool = getenv("RICH_UI", "False").lower() == "true"
         self.THUMB_GEN: bool = getenv("THUMB_GEN", "True").lower() == "true"
         self.VIDEO_PLAY: bool = getenv("VIDEO_PLAY", "True").lower() == "true"
 
