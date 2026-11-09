@@ -22,10 +22,10 @@ class Thumbnail:
     def __init__(self):
         self.size = (1280, 720)
         self.fill = (255, 255, 255)
-        # 🟢 Font အရွယ်အစားများကို အနည်းငယ် ထပ်ကြီးပေးခြင်း
-        self.font_n = ImageFont.truetype("melody/helpers/Raleway-Bold.ttf", 24)  # Channel
-        self.font_t = ImageFont.truetype("melody/helpers/Raleway-Bold.ttf", 38)  # Title
-        self.font_c = ImageFont.truetype("melody/helpers/Inter-Light.ttf", 22)   # Logo / Extra text
+        # Font အရွယ်အစားများ
+        self.font_n = ImageFont.truetype("melody/helpers/Raleway-Bold.ttf", 28)  # Channel
+        self.font_t = ImageFont.truetype("melody/helpers/Raleway-Bold.ttf", 44)  # Title
+        self.font_c = ImageFont.truetype("melody/helpers/Inter-Light.ttf", 24)   # Logo / Extra text
         
         self.session: aiohttp.ClientSession | None = None
         self.timeout = aiohttp.ClientTimeout(total=8, connect=3, sock_read=5)
@@ -122,8 +122,7 @@ class Thumbnail:
                 centering=(0.5, 0.5),
             ).filter(ImageFilter.GaussianBlur(25))
             
-            # 🟢 နောက်ခံကို အရင်ကထက် ပိုလင်းလာစေရန် ချိန်ညှိခြင်း (0.5 မှ 0.65 သို့)
-            image = ImageEnhance.Brightness(image).enhance(0.65)
+            image = ImageEnhance.Brightness(image).enhance(0.75)
 
             # 2. controls.png ကို ပုံ၏ အောက်ဘက်တစ်ဝက် (Y = 360 မှစ၍) တွင် အပြည့်အစုံ ဖော်ပြခြင်း
             try:
@@ -133,28 +132,20 @@ class Thumbnail:
             except Exception as e:
                 logger.error(f"Controls overlay error: {e}")
 
-            # 3. 🟢 YouTube Thumbnail ပုံငယ်ကို ပို၍ ကြီးမားစွာ ထည့်သွင်းခြင်း (Size: 200x200)
-            thumb_size = 200
-            width, height = source.size
-            side_length = min(width, height)
-            crop = source.crop(
-                (
-                    (width - side_length) // 2,
-                    (height - side_length) // 2,
-                    (width + side_length) // 2,
-                    (height + side_length) // 2,
-                )
-            )
-            resize = crop.resize((thumb_size, thumb_size), Image.Resampling.LANCZOS)
+            # 3. 🟢 YouTube Thumbnail ပုံငယ်ကို ဘေးဘက် ပိုကျယ်စေခြင်း (Width: 260, Height: 200)
+            thumb_w = 260
+            thumb_h = 200
+            
+            resize = source.resize((thumb_w, thumb_h), Image.Resampling.LANCZOS)
 
-            thumb_mask = Image.new("L", (thumb_size, thumb_size), 0)
-            ImageDraw.Draw(thumb_mask).rounded_rectangle((0, 0, thumb_size, thumb_size), radius=28, fill=255)
+            thumb_mask = Image.new("L", (thumb_w, thumb_h), 0)
+            ImageDraw.Draw(thumb_mask).rounded_rectangle((0, 0, thumb_w, thumb_h), radius=28, fill=255)
 
-            rounded = ImageOps.fit(resize, (thumb_size, thumb_size))
+            rounded = ImageOps.fit(resize, (thumb_w, thumb_h))
             rounded.putalpha(thumb_mask)
 
-            # Thumbnail paste မည့်နေရာ (X=220, Y=85)
-            image.paste(rounded, (220, 85), rounded)
+            # Thumbnail paste မည့်နေရာ (X=180, Y=75) - ညာဘက်သို့ စာသားများနေရာလွတ်ရအောင် ချိန်ထားခြင်း
+            image.paste(rounded, (180, 75), rounded)
 
         # စာသားများ သတ်မှတ်ခြင်း
         channel = (song.channel_name or "Myanmar Bots")[:22]
@@ -162,10 +153,10 @@ class Thumbnail:
 
         draw = ImageDraw.Draw(image)
         
-        # 4. 🟢 ညာဘက်ခြမ်းတွင် Channel၊ Title နှင့် Logo စာသားများကို အနေတော် နေရာချခြင်း
-        draw.text((445, 95), channel, (200, 200, 200), font=self.font_n)     # Channel နာမည်
-        draw.text((445, 130), title, (255, 255, 255), font=self.font_t)       # သီချင်းနာမည် (Title)
-        draw.text((447, 185), "Dev - KHH", (200, 200, 200), font=self.font_c) # Logo စာသား
+        # 4. 🟢 ညာဘက်ခြမ်းတွင် Channel၊ Title နှင့် Logo စာသားများကို သပ်ရပ်စွာ နေရာချခြင်း
+        draw.text((465, 80), channel, (210, 210, 210), font=self.font_n)     # Channel နာမည်
+        draw.text((465, 120), title, (255, 255, 255), font=self.font_t)       # သီချင်းနာမည် (Title)
+        draw.text((467, 180), "Dev - KHH", (200, 200, 200), font=self.font_c) # Logo စာသား
 
         temp = output.with_name(f"{output.stem}.tmp{output.suffix}")
         image.convert("RGB").save(
