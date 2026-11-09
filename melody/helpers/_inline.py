@@ -94,7 +94,7 @@ class Inline:
             )
         return self.ikm(keyboard)
 
-        def help_markup(
+    def help_markup(
         self, _lang: dict, back: bool = False
     ) -> types.InlineKeyboardMarkup:
         if back:
@@ -113,7 +113,6 @@ class Inline:
                 ]
             ]
         else:
-            
             help_items = [
                 ("admins", _lang.get("help_admins", "Admins")),
                 ("lang", _lang.get("help_lang", "Language")),
@@ -131,11 +130,9 @@ class Inline:
                 )
                 for cb, text in help_items
             ]
-            
             rows = [buttons[i : i + 2] for i in range(0, len(buttons), 2)]
 
         return self.ikm(rows)
-
 
     def lang_markup(
         self, _lang: str, action: str = "lang_change"
