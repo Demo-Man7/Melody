@@ -142,7 +142,7 @@ async def _controls(_, query: types.CallbackQuery):
 
     try:
         if action in ["skip", "replay", "stop"]:
-            await query.message.reply_text(reply, quote=False)
+            await query.message.reply_text(reply)  # 
             await query.message.delete()
         else:
             mtext = re.sub(
@@ -212,6 +212,11 @@ async def _settings_cb(_, query: types.CallbackQuery):
     _no_thumb = await db.get_thumbnail_mode(chat_id)
     _autoplay = await db.get_autoplay(chat_id)
 
+    (
+        db.set_cmd_delete(chat_id, _delete)
+        if cmd[1] == "delete"
+        else None
+    )
     if cmd[1] == "delete":
         _delete = not _delete
         await db.set_cmd_delete(chat_id, _delete)
