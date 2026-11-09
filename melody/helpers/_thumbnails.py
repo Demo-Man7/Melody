@@ -133,8 +133,8 @@ class Thumbnail:
                 logger.error(f"Controls overlay error: {e}")
 
             # 3. 🟢 YouTube Thumbnail ပုံငယ်ကို ပိုကြီးပြီး ဘေးဘက် ပိုကျယ်စေခြင်း (Width: 320, Height: 220)
-            thumb_w = 320
-            thumb_h = 220
+            thumb_w = 350
+            thumb_h = 260
             
             resize = source.resize((thumb_w, thumb_h), Image.Resampling.LANCZOS)
 
@@ -154,9 +154,9 @@ class Thumbnail:
         draw = ImageDraw.Draw(image)
         
         # 4. 🟢 ညာဘက်ခြမ်းတွင် Channel၊ Title နှင့် Logo စာသားများကို သပ်ရပ်စွာ နေရာချခြင်း (X နေရာကို 500 သို့ ချိန်ထားခြင်း)
-        draw.text((500, 75), channel, (210, 210, 210), font=self.font_n)     # Channel နာမည်
-        draw.text((500, 115), title, (255, 255, 255), font=self.font_t)       # သီချင်းနာမည် (Title)
-        draw.text((502, 175), "Dev - KHH", (200, 200, 200), font=self.font_c) # Logo စာသား
+        draw.text((530, 105), channel, (210, 210, 210), font=self.font_n)     # Channel နာမည်
+        draw.text((530, 145), title, (255, 255, 255), font=self.font_t)       # သီချင်းနာမည် (Title)
+        draw.text((532, 205), "Dev - KHH", (200, 200, 200), font=self.font_c) # Logo စာသား
 
         temp = output.with_name(f"{output.stem}.tmp{output.suffix}")
         image.convert("RGB").save(
