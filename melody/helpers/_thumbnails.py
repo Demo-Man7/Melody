@@ -44,7 +44,6 @@ class Thumbnail:
             await self.session.close()
 
     async def generate(self, song: Track, size=(1280, 720)) -> str:
-        """သီချင်း၏ Thumbnail ကို iOS Player ကတ်ပြားပုံစံဖြင့် တိုက်ရိုက်ထုတ်ယူရန်"""
         cached = self.cached_path(song.id)
         if cached:
             return cached
@@ -60,7 +59,7 @@ class Thumbnail:
             self.pending.pop(song.id, None)
 
     def cached_path(self, song_id: str) -> str | None:
-        for suffix in ("jpg", "png"):  # 👈 type hint ဖြုတ်ပြီးသား
+        for suffix in ("jpg", "png"):
             path = Path("cache") / f"{song_id}.{suffix}"
             if path.exists():
                 return str(path)
@@ -123,48 +122,46 @@ class Thumbnail:
                 background.filter(ImageFilter.GaussianBlur(20))
             ).enhance(0.45)
 
-            # အလယ်ကတ်ပြား ဖန်တီးရန် (Box)
-            box = (183, 30, 1097, 544)
+            # အလယ်ကတ်ပြား ဖန်တီးရန် (Box) - ပုံ (3) ပါ အနေအထားအတိုင်း
+            box = (230, 160, 1050, 560)
             region = image.crop(box)
 
             mask = Image.new("L", region.size, 0)
             ImageDraw.Draw(mask).rounded_rectangle(
                 (0, 0, region.size[0], region.size[1]),
-                radius=25,
+                radius=30,
                 fill=255,
             )
             image.paste(region, box, mask)
 
-            # 🟢 controls.png ဖိုင်ကို ကတ်ပြားပေါ်သို့ ပေါင်းထည့်ခြင်း
+            # controls.png ဖိုင်ကို ကတ်ပြားပေါ်သို့ ပေါင်းထည့်ခြင်း[span_1](start_span)[span_1](end_span)
             try:
                 controls = Image.open("melody/helpers/controls.png").convert("RGBA")
-                image.paste(controls, (183, 30), controls)
+                image.paste(controls, (230, 160), controls)
             except Exception:
                 pass
 
-            # သီချင်း Thumbnail ပုံကို ကတ်ပြားအတွင်း ဘယ်ဘက်ခြမ်းတွင် ထည့်ရန်
-            thumb_size = (160, 160)
+            # သီချင်း Thumbnail ပုံငယ်ကို ကတ်ပြားအတွင်း ဘယ်ဘက်ခြမ်းတွင် ထည့်ရန်[span_2](start_span)[span_2](end_span)
+            thumb_size = (110, 110)
             thumb_img = ImageOps.fit(source, thumb_size, method=Image.Resampling.LANCZOS)
             thumb_mask = Image.new("L", thumb_size, 0)
             ImageDraw.Draw(thumb_mask).rounded_rectangle((0, 0, thumb_size[0], thumb_size[1]), radius=15, fill=255)
             thumb_img.putalpha(thumb_mask)
-            image.paste(thumb_img, (220, 65), thumb_img)
+            image.paste(thumb_img, (260, 195), thumb_img)
 
-        channel = (song.channel_name or "")[:25]
-        title = (song.title or "")[:40]
-        duration = song.duration or "00:00"
+        channel = (song.channel_name or "")[:20]
+        title = (song.title or "")[:30]
 
         draw = ImageDraw.Draw(image)
+        
+        # Thumbnail ရဲ့ ညာဘက်ခြမ်းတွင် Channel နှင့် Title ပေါ်စေရန်[span_3](start_span)[span_3](end_span)
         draw.text(
-            xy=(400, 75),
+            xy=(390, 200),
             text=channel,
             font=self.font2,
-            fill=(200, 200, 200),
+            fill=(180, 180, 180),
         )
-        draw.text((400, 110), title, font=self.font1, fill=self.fill)
-        draw.text((220, 245), "0:01", font=self.font2, fill=(200, 200, 200))
-        draw.line([(290, 255), (1000, 255)], fill=(150, 150, 150), width=4)
-        draw.text((1020, 245), duration, font=self.font2, fill=(200, 200, 200))
+        draw.text((390, 230), title, font=self.font1, fill=self.fill)
 
         temp = output.with_name(f"{output.stem}.tmp{output.suffix}")
         image.convert("RGB").save(
