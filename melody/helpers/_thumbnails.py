@@ -63,7 +63,7 @@ class Thumbnail:
 
     def cached_path(self, song_id: str) -> str | None:
         for suffix in ("jpg", "png"):
-            path = Path("cache") / f"{song.id}.{suffix}"
+            path = Path("cache") / f"{song_id}.{suffix}"
             if path.exists():
                 return str(path)
         return None
