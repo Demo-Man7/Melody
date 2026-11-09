@@ -122,7 +122,7 @@ class Thumbnail:
                 centering=(0.5, 0.5),
             ).filter(ImageFilter.GaussianBlur(25))
             
-            image = ImageEnhance.Brightness(image).enhance(0.9)
+            image = ImageEnhance.Brightness(image).enhance(0.95)
 
             
             try:
@@ -133,8 +133,8 @@ class Thumbnail:
                 logger.error(f"Controls overlay error: {e}")
 
             
-            thumb_w = 350
-            thumb_h = 260
+            thumb_w = 370
+            thumb_h = 280
             
             resize = source.resize((thumb_w, thumb_h), Image.Resampling.LANCZOS)
 
@@ -154,9 +154,9 @@ class Thumbnail:
         draw = ImageDraw.Draw(image)
         
         
-        draw.text((530, 110), channel, (210, 210, 210), font=self.font_n)     
-        draw.text((530, 125), title, (255, 255, 255), font=self.font_t)      
-        draw.text((532, 235), "Dev - KHH", (255, 255, 255), font=self.font_c) 
+        draw.text((550, 105), channel, (210, 210, 210), font=self.font_n)     
+        draw.text((550, 140), title, (255, 255, 255), font=self.font_t)      
+        draw.text((552, 235), "Dev - KHH", (255, 255, 255), font=self.font_c) 
 
         temp = output.with_name(f"{output.stem}.tmp{output.suffix}")
         image.convert("RGB").save(
