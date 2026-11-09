@@ -132,20 +132,20 @@ class Thumbnail:
             except Exception as e:
                 logger.error(f"Controls overlay error: {e}")
 
-            # 3. 🟢 YouTube Thumbnail ပုံငယ်ကို ဘေးဘက် ပိုကျယ်စေခြင်း (Width: 260, Height: 200)
-            thumb_w = 260
-            thumb_h = 200
+            # 3. 🟢 YouTube Thumbnail ပုံငယ်ကို ပိုကြီးပြီး ဘေးဘက် ပိုကျယ်စေခြင်း (Width: 320, Height: 220)
+            thumb_w = 320
+            thumb_h = 220
             
             resize = source.resize((thumb_w, thumb_h), Image.Resampling.LANCZOS)
 
             thumb_mask = Image.new("L", (thumb_w, thumb_h), 0)
-            ImageDraw.Draw(thumb_mask).rounded_rectangle((0, 0, thumb_w, thumb_h), radius=28, fill=255)
+            ImageDraw.Draw(thumb_mask).rounded_rectangle((0, 0, thumb_w, thumb_h), radius=32, fill=255)
 
             rounded = ImageOps.fit(resize, (thumb_w, thumb_h))
             rounded.putalpha(thumb_mask)
 
-            # Thumbnail paste မည့်နေရာ (X=180, Y=75) - ညာဘက်သို့ စာသားများနေရာလွတ်ရအောင် ချိန်ထားခြင်း
-            image.paste(rounded, (180, 75), rounded)
+            # Thumbnail paste မည့်နေရာ (X=160, Y=70)
+            image.paste(rounded, (160, 70), rounded)
 
         # စာသားများ သတ်မှတ်ခြင်း
         channel = (song.channel_name or "Myanmar Bots")[:22]
@@ -153,10 +153,10 @@ class Thumbnail:
 
         draw = ImageDraw.Draw(image)
         
-        # 4. 🟢 ညာဘက်ခြမ်းတွင် Channel၊ Title နှင့် Logo စာသားများကို သပ်ရပ်စွာ နေရာချခြင်း
-        draw.text((465, 80), channel, (210, 210, 210), font=self.font_n)     # Channel နာမည်
-        draw.text((465, 120), title, (255, 255, 255), font=self.font_t)       # သီချင်းနာမည် (Title)
-        draw.text((467, 180), "Dev - KHH", (200, 200, 200), font=self.font_c) # Logo စာသား
+        # 4. 🟢 ညာဘက်ခြမ်းတွင် Channel၊ Title နှင့် Logo စာသားများကို သပ်ရပ်စွာ နေရာချခြင်း (X နေရာကို 500 သို့ ချိန်ထားခြင်း)
+        draw.text((500, 75), channel, (210, 210, 210), font=self.font_n)     # Channel နာမည်
+        draw.text((500, 115), title, (255, 255, 255), font=self.font_t)       # သီချင်းနာမည် (Title)
+        draw.text((502, 175), "Dev - KHH", (200, 200, 200), font=self.font_c) # Logo စာသား
 
         temp = output.with_name(f"{output.stem}.tmp{output.suffix}")
         image.convert("RGB").save(
