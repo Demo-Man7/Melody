@@ -22,10 +22,10 @@ class Thumbnail:
     def __init__(self):
         self.size = (1280, 720)
         self.fill = (255, 255, 255)
-        # Font အရွယ်အစားများကို 1280x720 resolution နဲ့ ညီအောင် ချိန်ညှိခြင်း
+        # Font အရွယ်အစားများ
         self.font_n = ImageFont.truetype("melody/helpers/Raleway-Bold.ttf", 22)  # Channel
         self.font_t = ImageFont.truetype("melody/helpers/Raleway-Bold.ttf", 32)  # Title
-        self.font_c = ImageFont.truetype("melody/helpers/Inter-Light.ttf", 22)   # Extra
+        self.font_c = ImageFont.truetype("melody/helpers/Inter-Light.ttf", 20)   # Sub text
         self.font_d = ImageFont.truetype("melody/helpers/Inter-Light.ttf", 20)   # Duration
         
         self.session: aiohttp.ClientSession | None = None
@@ -115,7 +115,7 @@ class Thumbnail:
         with Image.open(BytesIO(data)) as source:
             source = ImageOps.exif_transpose(source).convert("RGBA")
             
-            # 1. နောက်ခံကို ကြီးချဲ့၍ Blur လုပ်ခြင်း (1280x720 ဖြင့်)
+            # 1. နောက်ခံကို Blur လုပ်ခြင်း
             bg = ImageOps.fit(
                 source,
                 size,
@@ -126,8 +126,8 @@ class Thumbnail:
                 bg.filter(ImageFilter.GaussianBlur(25))
             ).enhance(0.45)
 
-            # 2. ကတ်ပြားနေရာကို 1280x720 မျက်နှာပြင်၏ အလယ်ဗဟိုသို့ တိကျစွာ ချိန်ညှိခြင်း (Box)
-            box = (240, 140, 1040, 580)
+            # 2. 🟢 ကတ်ပြားကို ဘေးဘက်သို့ ပိုဆန့်ပေးခြင်း (ဒုတိယပုံစံအတိုင်း အကျယ်ချဲ့ထားသည်)
+            box = (200, 110, 1080, 610)
             region = image.crop(box)
 
             dark_region = ImageEnhance.Brightness(region).enhance(0.7)
@@ -138,15 +138,16 @@ class Thumbnail:
 
             image.paste(dark_region, box, mask)
 
-            # 3. controls.png ဖိုင်ကို ကတ်ပြားပေါ်သို့ အလယ်ဗဟိုကျကျ ပေါင်းထည့်ခြင်း
+            # 3. 🟢 controls.png ကို ဘေးဘက်သို့ အပြည့်အစုံ ဆန့်ထွက်လာစေရန် ချိန်ညှိခြင်း
             try:
                 controls = Image.open("melody/helpers/controls.png").convert("RGBA")
-                image.paste(controls, (270, 320), controls)
+                controls_resized = controls.resize((880, 500), Image.Resampling.LANCZOS)
+                image.paste(controls_resized, (200, 110), controls_resized)
             except Exception:
                 pass
 
-            # 4. သီချင်း Thumbnail ပုံငယ်ကို ကတ်ပြား၏ ဘယ်ဘက်ခြမ်းတွင် ထည့်ရန်
-            thumb_size = 150
+            # 4. သီချင်း Thumbnail ပုံငယ်ကို ဘယ်ဘက်ခြမ်းတွင် ထည့်ရန်
+            thumb_size = 145
             width, height = source.size
             side_length = min(width, height)
             crop = source.crop(
@@ -165,21 +166,24 @@ class Thumbnail:
             rounded = ImageOps.fit(resize, (thumb_size, thumb_size))
             rounded.putalpha(thumb_mask)
 
-            # Thumbnail paste မည့်နေရာ (X=290, Y=165)
-            image.paste(rounded, (290, 165), rounded)
+            # Thumbnail paste မည့်နေရာ
+            image.paste(rounded, (240, 145), rounded)
 
         # စာသားများ သတ်မှတ်ခြင်း
         channel = (song.channel_name or "Melody")[:22]
         title = (song.title or "Unknown")[:25]
-        duration = song.duration or "0:00"
+        duration = song.duration or "3:54"  # ဥပမာကြာချိန်
 
         draw = ImageDraw.Draw(image)
         
-        # 5. Thumbnail ၏ ညာဘက်ခြမ်းတွင် စာသားများ အနေတော် ပေါ်စေရန်
-        draw.text((465, 185), channel, (192, 192, 192), font=self.font_n)
-        draw.text((465, 220), title, (255, 255, 255), font=self.font_t)
-        draw.text((467, 265), "Telegram Music Bot", (200, 200, 200), font=self.font_c)
-        draw.text((950, 340), duration, (192, 192, 192), font=self.font_d)
+        # 5. ညာဘက်ခြမ်းတွင် Channel, Title နှင့် Sub text များကို ပုံစံတကျ ဖော်ပြခြင်း
+        draw.text((410, 155), channel, (192, 192, 192), font=self.font_n)
+        draw.text((410, 190), title, (255, 255, 255), font=self.font_t)
+        draw.text((412, 235), "Telegram Music Bot", (200, 200, 200), font=self.font_c)
+        
+        # 🟢 ၆။ ဒုတိယပုံပါ Progress bar ရဲ့ ဘယ်ဘက်နဲ့ ညာဘက်အစွန်ဆုံး အနေအထားအတိုင်း အချိန်များကို ချိန်ညှိခြင်း
+        draw.text((280, 315), "0:24", (200, 200, 200), font=self.font_d)      # ဘယ်ဘက်အစွန်း အချိန်
+        draw.text((945, 315), duration, (200, 200, 200), font=self.font_d)   # ညာဘက်အစွန်း အချိန် (Duration)
 
         temp = output.with_name(f"{output.stem}.tmp{output.suffix}")
         image.convert("RGB").save(
