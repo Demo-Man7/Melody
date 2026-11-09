@@ -26,7 +26,6 @@ class Thumbnail:
         self.font_n = ImageFont.truetype("melody/helpers/Raleway-Bold.ttf", 22)  # Channel
         self.font_t = ImageFont.truetype("melody/helpers/Raleway-Bold.ttf", 34)  # Title
         self.font_c = ImageFont.truetype("melody/helpers/Inter-Light.ttf", 20)   # Logo / Extra text
-        self.font_d = ImageFont.truetype("melody/helpers/Inter-Light.ttf", 20)   # Duration
         
         self.session: aiohttp.ClientSession | None = None
         self.timeout = aiohttp.ClientTimeout(total=8, connect=3, sock_read=5)
@@ -64,7 +63,7 @@ class Thumbnail:
 
     def cached_path(self, song_id: str) -> str | None:
         for suffix in ("jpg", "png"):
-            path = Path("cache") / f"{song_id}.{suffix}"
+            path = Path("cache") / f"{song.id}.{suffix}"
             if path.exists():
                 return str(path)
         return None
@@ -125,15 +124,15 @@ class Thumbnail:
             
             image = ImageEnhance.Brightness(image).enhance(0.5)
 
-            # 2. controls.png ကို မျက်နှာပြင်အပြည့် (1280x720) ဖြင့် paste လုပ်ခြင်း
+            # 2. controls.png ကို ပုံ၏ အောက်ဘက်တစ်ဝက် (Y = 360 မှစ၍) တွင် အပြည့်အစုံ ဖော်ပြခြင်း
             try:
                 controls = Image.open("melody/helpers/controls.png").convert("RGBA")
-                controls_resized = controls.resize(size, Image.Resampling.LANCZOS)
-                image.paste(controls_resized, (0, 0), controls_resized)
+                controls_resized = controls.resize((1280, 360), Image.Resampling.LANCZOS)
+                image.paste(controls_resized, (0, 360), controls_resized)
             except Exception as e:
                 logger.error(f"Controls overlay error: {e}")
 
-            # 3. 🟢 YouTube Thumbnail ပုံငယ်ကို ပိုကြီးအောင် ချိန်ညှိခြင်း (Size: 180x180)
+            # 3. အပေါ်ဘက်တစ်ဝက်မှာ ပေါ်မည့် YouTube Thumbnail ပုံငယ် (အရွယ်အစား ကြီးမားစွာ ထည့်သွင်းခြင်း)
             thumb_size = 180
             width, height = source.size
             side_length = min(width, height)
@@ -153,24 +152,19 @@ class Thumbnail:
             rounded = ImageOps.fit(resize, (thumb_size, thumb_size))
             rounded.putalpha(thumb_mask)
 
-            # Thumbnail paste မည့်နေရာ (X=230, Y=95)
+            # Thumbnail paste မည့်နေရာ (အပေါ်ဘက်တစ်ဝက်တွင် အနေတော် ရှိစေရန်)
             image.paste(rounded, (230, 95), rounded)
 
         # စာသားများ သတ်မှတ်ခြင်း
-        channel = (song.channel_name or "KHH")[:22]
-        title = (song.title or "CORES")[:25]
-        duration = song.duration or "3:54"
+        channel = (song.channel_name or "Myanmar Bots")[:22]
+        title = (song.title or "Myanmar Tv")[:25]
 
         draw = ImageDraw.Draw(image)
         
-        # 4. 🟢 ညာဘက်ခြမ်းတွင် Channel, Title နှင့် Logo စာသားများကို နေရာတကျ ဖော်ပြခြင်း
-        draw.text((435, 105), channel, (180, 180, 180), font=self.font_n)
-        draw.text((435, 140), title, (255, 255, 255), font=self.font_t)
-        draw.text((437, 190), "Telegram Music Bot", (200, 200, 200), font=self.font_c) # ကိုယ့် Logo စာသား
-        
-        # 5. 🟢 Progress Bar ရဲ့ ဘယ်ညာ အစွန်ဆုံးတွင် အချိန်များ ထည့်သွင်းခြင်း
-        draw.text((230, 295), "0:24", (200, 200, 200), font=self.font_d)      # ဘယ်ဘက်အစွန်း အချိန်
-        draw.text((1010, 295), duration, (200, 200, 200), font=self.font_d)   # ညာဘက်အစွန်း အချိန် (Duration)
+        # 4. Thumbnail ရဲ့ ညာဘက်ခြမ်း (အပေါ်ဘက်တစ်ဝက်) တွင် Channel၊ Title နှင့် Logo စာသားများ ထည့်သွင်းခြင်း
+        draw.text((435, 105), channel, (180, 180, 180), font=self.font_n)     # Channel နာမည်
+        draw.text((435, 140), title, (255, 255, 255), font=self.font_t)       # သီချင်းနာမည် (Title)
+        draw.text((437, 190), "Dev - KHH", (200, 200, 200), font=self.font_c) # Logo စာသား
 
         temp = output.with_name(f"{output.stem}.tmp{output.suffix}")
         image.convert("RGB").save(
