@@ -22,11 +22,10 @@ class Thumbnail:
     def __init__(self):
         self.size = (1280, 720)
         self.fill = (255, 255, 255)
-        # Font အရွယ်အစားများကို 1280x720 resolution နဲ့ ညီအောင် ချိန်ညှိခြင်း
+        # Font အရွယ်အစားများ
         self.font_n = ImageFont.truetype("melody/helpers/Raleway-Bold.ttf", 22)  # Channel
         self.font_t = ImageFont.truetype("melody/helpers/Raleway-Bold.ttf", 32)  # Title
-        self.font_c = ImageFont.truetype("melody/helpers/Inter-Light.ttf", 22)   # Extra
-        self.font_d = ImageFont.truetype("melody/helpers/Inter-Light.ttf", 20)   # Duration
+        self.font_c = ImageFont.truetype("melody/helpers/Inter-Light.ttf", 20)   # Sub text
         
         self.session: aiohttp.ClientSession | None = None
         self.timeout = aiohttp.ClientTimeout(total=8, connect=3, sock_read=5)
@@ -115,7 +114,7 @@ class Thumbnail:
         with Image.open(BytesIO(data)) as source:
             source = ImageOps.exif_transpose(source).convert("RGBA")
             
-            # 1. နောက်ခံကို ကြီးချဲ့၍ Blur လုပ်ခြင်း (1280x720 ဖြင့်)
+            # 1. နောက်ခံကို Blur လုပ်ခြင်း
             bg = ImageOps.fit(
                 source,
                 size,
@@ -126,27 +125,28 @@ class Thumbnail:
                 bg.filter(ImageFilter.GaussianBlur(25))
             ).enhance(0.45)
 
-            # 2. ကတ်ပြားနေရာကို 1280x720 မျက်နှာပြင်၏ အလယ်ဗဟိုသို့ တိကျစွာ ချိန်ညှိခြင်း (Box)
-            box = (240, 140, 1040, 580)
+            # 2. ကတ်ပြားကို အလယ်ဗဟိုတွင် အပြည့်အစုံ အနေတော်ပေါ်စေရန် Box ဧရိယာ (ဒုတိယပုံစံအတိုင်း အတိအကျ)[span_2](start_span)[span_2](end_span)
+            box = (200, 100, 1080, 620)
             region = image.crop(box)
 
-            dark_region = ImageEnhance.Brightness(region).enhance(0.7)
+            dark_region = ImageEnhance.Brightness(region).enhance(0.6)
             mask = Image.new("L", dark_region.size, 0)
             ImageDraw.Draw(mask).rounded_rectangle(
-                (0, 0, box[2] - box[0], box[3] - box[1]), 35, fill=255
+                (0, 0, box[2] - box[0], box[3] - box[1]), 40, fill=255
             )
 
             image.paste(dark_region, box, mask)
 
-            # 3. controls.png ဖိုင်ကို ကတ်ပြားပေါ်သို့ အလယ်ဗဟိုကျကျ ပေါင်းထည့်ခြင်း
+            # 3. controls.png ပုံကို ကတ်ပြားပေါ်တွင် နေရာတကျ paste လုပ်ရန်[span_3](start_span)[span_3](end_span)
             try:
                 controls = Image.open("melody/helpers/controls.png").convert("RGBA")
-                image.paste(controls, (270, 320), controls)
+                controls_resized = controls.resize((880, 520), Image.Resampling.LANCZOS)
+                image.paste(controls_resized, (200, 100), controls_resized)
             except Exception:
                 pass
 
-            # 4. သီချင်း Thumbnail ပုံငယ်ကို ကတ်ပြား၏ ဘယ်ဘက်ခြမ်းတွင် ထည့်ရန်
-            thumb_size = 150
+            # 4. သီချင်း Thumbnail ပုံငယ်ကို ဘယ်ဘက်ခြမ်းတွင် ထည့်ရန်[span_4](start_span)[span_4](end_span)
+            thumb_size = 135
             width, height = source.size
             side_length = min(width, height)
             crop = source.crop(
@@ -165,21 +165,21 @@ class Thumbnail:
             rounded = ImageOps.fit(resize, (thumb_size, thumb_size))
             rounded.putalpha(thumb_mask)
 
-            # Thumbnail paste မည့်နေရာ (X=290, Y=165)
-            image.paste(rounded, (290, 165), rounded)
+            image.paste(rounded, (250, 145), rounded)
 
         # စာသားများ သတ်မှတ်ခြင်း
-        channel = (song.channel_name or "Melody")[:22]
+        channel = (song.channel_name or "Myanmar Music")[:20]
         title = (song.title or "Unknown")[:25]
-        duration = song.duration or "0:00"
+        duration = song.duration or "0:00"  # 🟢 သီချင်းကြာချိန် (Duration)
 
         draw = ImageDraw.Draw(image)
         
-        # 5. Thumbnail ၏ ညာဘက်ခြမ်းတွင် စာသားများ အနေတော် ပေါ်စေရန်
-        draw.text((465, 185), channel, (192, 192, 192), font=self.font_n)
-        draw.text((465, 220), title, (255, 255, 255), font=self.font_t)
-        draw.text((467, 265), "Telegram Music Bot", (200, 200, 200), font=self.font_c)
-        draw.text((950, 340), duration, (192, 192, 192), font=self.font_d)
+        # 5. နေရာချထားမှုများ (Channel, Title နှင့် Telegram Music Bot နေရာတွင် Duration ပေါ်စေရန်)[span_5](start_span)[span_5](end_span)
+        draw.text((410, 155), channel, (192, 192, 192), font=self.font_n)
+        draw.text((410, 185), title, (255, 255, 255), font=self.font_t)
+        
+        # 🟢 တောင်းဆိုထားသည့်အတိုင်း "Telegram Music Bot" အစား သီချင်း Duration ကို အောက်ဘက်နားတွင် ဖော်ပြပေးခြင်း[span_6](start_span)[span_6](end_span)
+        draw.text((412, 225), f"Duration: {duration}", (200, 200, 200), font=self.font_c)
 
         temp = output.with_name(f"{output.stem}.tmp{output.suffix}")
         image.convert("RGB").save(
