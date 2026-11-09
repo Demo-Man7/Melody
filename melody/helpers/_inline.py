@@ -298,7 +298,7 @@ class Inline:
             ],
             [
                 self._button(
-                    text="𝙾𝚆𝙽𝙴𝚁",
+                    text=lang["owner"],
                     category="disabled",
                     url=config.OWNER_LINK,
                 )
