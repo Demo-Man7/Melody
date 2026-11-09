@@ -188,7 +188,7 @@ class Inline:
         )
 
     def thumb_markup(self, chat_id: int, enabled: bool) -> types.InlineKeyboardMarkup:
-        """Thumbnail On/Off ခလုတ်များ ဖန်တီးရန်"""
+        """Thumbnail On/Off """
         return self.ikm(
             [
                 [
@@ -243,18 +243,18 @@ class Inline:
                         callback_data="settings delete",
                     ),
                 ],
-                [
-                    self._button(
-                        text=lang["thumbnail"] + " ➜",
-                        category="setting",
-                        callback_data="settings",
-                    ),
-                    self._button(
-                        text=lang["thumbnail_off"] if no_thumbnail else lang["thumbnail_on"],
-                        category="disabled" if no_thumbnail else "enabled",
-                        callback_data="settings thumbnail",
-                    ),
-                ],
+                #[
+                    #self._button(
+                       # text=lang["thumbnail"] + " ➜",
+                      #  category="setting",
+                      #  callback_data="settings",
+                 #   ),
+                  #  self._button(
+                      #  text=lang["thumbnail_off"] if no_thumbnail else lang["thumbnail_on"],
+                       # category="disabled" if no_thumbnail else "enabled",
+                       # callback_data="settings thumbnail",
+                   # ),
+                #],
                 [
                     self._button(
                         text=lang["language"] + " ➜",
