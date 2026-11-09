@@ -114,12 +114,12 @@ class Inline:
             ]
         else:
             help_items = [
-                ("admins", _lang.get("help_admins", "Admins")),
-                ("lang", _lang.get("help_lang", "Language")),
-                ("ping", _lang.get("help_ping", "Ping")),
-                ("play", _lang.get("help_play", "Play")),
-                ("queue", _lang.get("help_queue", "Queue")),
-                ("sudo", _lang.get("help_sudo", "Sudo")),
+                ("admins", _lang.get("help_0", "Admins")),
+                ("lang", _lang.get("help_3", "Language")),
+                ("ping", _lang.get("help_4", "Ping")),
+                ("play", _lang.get("help_5", "Play")),
+                ("queue", _lang.get("help_6", "Queue")),
+                ("sudo", _lang.get("help_8", "Sudo")),
             ]
             
             buttons = [
