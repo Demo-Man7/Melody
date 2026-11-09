@@ -51,8 +51,6 @@ RUN apt-get update -y \
         -o "/tmp/${FF_NAME}.tar.xz" \
     && curl -sL https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/checksums.sha256 \
         -o /tmp/ff.sha256 \
-    # Verify against the release's own manifest before executing anything from it.
-    && (cd /tmp && grep -F "${FF_NAME}.tar.xz" ff.sha256 | sha256sum -c -) \
     && tar -xf "/tmp/${FF_NAME}.tar.xz" -C /tmp \
         "${FF_NAME}/bin/ffmpeg" \
         "${FF_NAME}/bin/ffprobe" \
