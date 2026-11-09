@@ -20,13 +20,13 @@ class Thumbnail:
     MAX_DOWNLOAD_BYTES = 5 * 1024**2
 
     def __init__(self):
-        self.size = (640, 640)
+        self.size = (1280, 720)
         self.fill = (255, 255, 255)
-        # cloudymusic ပုံစံ Font အရွယ်အစားများနှင့် ကိုက်ညီစေရန်
-        self.font_n = ImageFont.truetype("melody/helpers/Raleway-Bold.ttf", 15)  # Channel / Source
-        self.font_t = ImageFont.truetype("melody/helpers/Raleway-Bold.ttf", 20)  # Title
-        self.font_c = ImageFont.truetype("melody/helpers/Inter-Light.ttf", 15)   # Artist/Extra
-        self.font_d = ImageFont.truetype("melody/helpers/Inter-Light.ttf", 12)   # Duration
+        # Font အရွယ်အစားများကို 1280x720 resolution နဲ့ ညီအောင် ချိန်ညှိခြင်း
+        self.font_n = ImageFont.truetype("melody/helpers/Raleway-Bold.ttf", 22)  # Channel
+        self.font_t = ImageFont.truetype("melody/helpers/Raleway-Bold.ttf", 32)  # Title
+        self.font_c = ImageFont.truetype("melody/helpers/Inter-Light.ttf", 22)   # Extra
+        self.font_d = ImageFont.truetype("melody/helpers/Inter-Light.ttf", 20)   # Duration
         
         self.session: aiohttp.ClientSession | None = None
         self.timeout = aiohttp.ClientTimeout(total=8, connect=3, sock_read=5)
@@ -47,7 +47,7 @@ class Thumbnail:
         if self.session and not self.session.closed:
             await self.session.close()
 
-    async def generate(self, song: Track, size=(640, 640)) -> str:
+    async def generate(self, song: Track, size=(1280, 720)) -> str:
         cached = self.cached_path(song.id)
         if cached:
             return cached
@@ -87,7 +87,7 @@ class Thumbnail:
                     raise ValueError("Thumbnail response is too large")
             return bytes(data)
 
-    async def _generate(self, song: Track, size=(640, 640)) -> str:
+    async def _generate(self, song: Track, size=(1280, 720)) -> str:
         output = Path("cache") / f"{song.id}.png"
         try:
             if not song.thumbnail:
@@ -115,29 +115,38 @@ class Thumbnail:
         with Image.open(BytesIO(data)) as source:
             source = ImageOps.exif_transpose(source).convert("RGBA")
             
-            # 1. နောက်ခံကို Blur လုပ်ခြင်း (cloudymusic ပုံစံအတိုင်း)
-            bg = source.filter(ImageFilter.GaussianBlur(25))
-            box = (120, 120, 520, 480)
+            # 1. နောက်ခံကို ကြီးချဲ့၍ Blur လုပ်ခြင်း (1280x720 ဖြင့်)
+            bg = ImageOps.fit(
+                source,
+                size,
+                method=Image.Resampling.BILINEAR,
+                centering=(0.5, 0.5),
+            )
+            image = ImageEnhance.Brightness(
+                bg.filter(ImageFilter.GaussianBlur(25))
+            ).enhance(0.45)
 
-            region = bg.crop(box)
-            dark_region = ImageEnhance.Brightness(region).enhance(0.5)
+            # 2. ကတ်ပြားနေရာကို 1280x720 မျက်နှာပြင်၏ အလယ်ဗဟိုသို့ တိကျစွာ ချိန်ညှိခြင်း (Box)
+            box = (240, 140, 1040, 580)
+            region = image.crop(box)
 
+            dark_region = ImageEnhance.Brightness(region).enhance(0.7)
             mask = Image.new("L", dark_region.size, 0)
             ImageDraw.Draw(mask).rounded_rectangle(
-                (0, 0, box[2] - box[0], box[3] - box[1]), 40, fill=255
+                (0, 0, box[2] - box[0], box[3] - box[1]), 35, fill=255
             )
 
-            bg.paste(dark_region, box, mask)
+            image.paste(dark_region, box, mask)
 
-            # 2. controls.png ဖိုင်ကို ပုံစံတူ နေရာချခြင်း
+            # 3. controls.png ဖိုင်ကို ကတ်ပြားပေါ်သို့ အလယ်ဗဟိုကျကျ ပေါင်းထည့်ခြင်း
             try:
                 controls = Image.open("melody/helpers/controls.png").convert("RGBA")
-                bg.paste(controls, (135, 305), controls)
+                image.paste(controls, (270, 320), controls)
             except Exception:
                 pass
 
-            # 3. သီချင်း Thumbnail ပုံငယ်ကို rounded square ပုံစံပြုလုပ်၍ ထည့်ရန်
-            thumb_size = 125
+            # 4. သီချင်း Thumbnail ပုံငယ်ကို ကတ်ပြား၏ ဘယ်ဘက်ခြမ်းတွင် ထည့်ရန်
+            thumb_size = 150
             width, height = source.size
             side_length = min(width, height)
             crop = source.crop(
@@ -151,30 +160,29 @@ class Thumbnail:
             resize = crop.resize((thumb_size, thumb_size), Image.Resampling.LANCZOS)
 
             thumb_mask = Image.new("L", (thumb_size, thumb_size), 0)
-            ImageDraw.Draw(thumb_mask).rounded_rectangle((0, 0, thumb_size, thumb_size), radius=30, fill=255)
+            ImageDraw.Draw(thumb_mask).rounded_rectangle((0, 0, thumb_size, thumb_size), radius=25, fill=255)
 
             rounded = ImageOps.fit(resize, (thumb_size, thumb_size))
             rounded.putalpha(thumb_mask)
 
-            # ပုံ (3) ပါ ပုံစံအတိုင်း Thumbnail ကို ကတ်ပြားအတွင်း paste လုပ်ရန်
-            paste_x, paste_y = 145, 155
-            bg.paste(rounded, (paste_x, paste_y), rounded)
+            # Thumbnail paste မည့်နေရာ (X=290, Y=165)
+            image.paste(rounded, (290, 165), rounded)
 
         # စာသားများ သတ်မှတ်ခြင်း
-        channel = (song.channel_name or "Melody")[:17]
-        title = (song.title or "Unknown")[:17]
+        channel = (song.channel_name or "Melody")[:22]
+        title = (song.title or "Unknown")[:25]
         duration = song.duration or "0:00"
 
-        draw = ImageDraw.Draw(bg)
+        draw = ImageDraw.Draw(image)
         
-        # 4. ပုံ (3) ပါ နေရာအတိုင်း စာသားများ ရေးဆွဲခြင်း
-        draw.text((285, 180), channel, (192, 192, 192), font=self.font_n)
-        draw.text((285, 200), title, (255, 255, 255), font=self.font_t)
-        draw.text((287, 235), "Telegram Music", (255, 255, 255), font=self.font_c)
-        draw.text((478, 321), duration, (192, 192, 192), font=self.font_d)
+        # 5. Thumbnail ၏ ညာဘက်ခြမ်းတွင် စာသားများ အနေတော် ပေါ်စေရန်
+        draw.text((465, 185), channel, (192, 192, 192), font=self.font_n)
+        draw.text((465, 220), title, (255, 255, 255), font=self.font_t)
+        draw.text((467, 265), "Telegram Music Bot", (200, 200, 200), font=self.font_c)
+        draw.text((950, 340), duration, (192, 192, 192), font=self.font_d)
 
         temp = output.with_name(f"{output.stem}.tmp{output.suffix}")
-        bg.convert("RGB").save(
+        image.convert("RGB").save(
             temp,
             format="JPEG",
             quality=90,
