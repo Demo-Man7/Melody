@@ -22,7 +22,7 @@ class Thumbnail:
     def __init__(self):
         self.size = (1280, 720)
         self.fill = (255, 255, 255)
-        # Font အရွယ်အစားများကို ဒုတိယပုံစံအတိုင်း အနေတော်ဖြစ်အောင် ချိန်ညှိခြင်း
+        # Font အရွယ်အစားများ
         self.font_n = ImageFont.truetype("melody/helpers/Raleway-Bold.ttf", 20)  # Channel
         self.font_t = ImageFont.truetype("melody/helpers/Raleway-Bold.ttf", 32)  # Title
         
@@ -113,7 +113,7 @@ class Thumbnail:
         with Image.open(BytesIO(data)) as source:
             source = ImageOps.exif_transpose(source).convert("RGBA")
             
-            # 1. နောက်ခံကို ကြီးချဲ့၍ Blur လုပ်ခြင်း
+            # 1. နောက်ခံကို မျက်နှာပြင်အပြည့် Blur လုပ်ခြင်း
             image = ImageOps.fit(
                 source,
                 size,
@@ -123,14 +123,16 @@ class Thumbnail:
             
             image = ImageEnhance.Brightness(image).enhance(0.5)
 
-            # 2. controls.png ပုံကို အလယ်ဗဟိုကျကျ တိုက်ရိုက် paste လုပ်ရန်[span_4](start_span)[span_4](end_span)[span_5](start_span)[span_5](end_span)
+            # 2. 🟢 controls.png ကို ပုံ၏ အောက်ဘက်တစ်ဝက် (Y = 360 မှစ၍) မှာ အနေတော် ပေါ်စေရန်
             try:
                 controls = Image.open("melody/helpers/controls.png").convert("RGBA")
-                image.paste(controls, (0, 0), controls)
+                # အောက်ဘက်တစ်ဝက်အတွက် အရွယ်အစားကို Width 1280, Height 360 ဖြင့် resize လုပ်ခြင်း
+                controls_resized = controls.resize((1280, 360), Image.Resampling.LANCZOS)
+                image.paste(controls_resized, (0, 360), controls_resized)
             except Exception as e:
                 logger.error(f"Controls overlay error: {e}")
 
-            # 3. သီချင်း Thumbnail ပုံငယ်ကို ဒုတိယပုံစံအတိုင်း ဘယ်ဘက်ခြမ်း နေရာလွတ်တွင် ထည့်ရန်[span_6](start_span)[span_6](end_span)[span_7](start_span)[span_7](end_span)
+            # 3. အပေါ်ဘက်တစ်ဝက်မှာ ပေါ်မည့် သီချင်း Thumbnail ပုံငယ်
             thumb_size = 145
             width, height = source.size
             side_length = min(width, height)
@@ -150,8 +152,8 @@ class Thumbnail:
             rounded = ImageOps.fit(resize, (thumb_size, thumb_size))
             rounded.putalpha(thumb_mask)
 
-            # ဒုတိယပုံပါ အနေအထားအတိုင်း Thumbnail နေရာချခြင်း[span_8](start_span)[span_8](end_span)[span_9](start_span)[span_9](end_span)
-            image.paste(rounded, (280, 175), rounded)
+            # အပေါ်ဘက် ဘယ်ဘက်ခြမ်းတွင် Thumbnail နေရာချခြင်း
+            image.paste(rounded, (280, 110), rounded)
 
         # စာသားများ သတ်မှတ်ခြင်း
         channel = (song.channel_name or "NexGen Bots")[:22]
@@ -159,9 +161,9 @@ class Thumbnail:
 
         draw = ImageDraw.Draw(image)
         
-        # 4. ဒုတိယပုံပါ အနေအထားအတိုင်း Channel နှင့် Title ကို ညာဘက်ခြမ်းတွင် နေရာတကျ ဖော်ပြခြင်း[span_10](start_span)[span_10](end_span)[span_11](start_span)[span_11](end_span)
-        draw.text((445, 185), channel, (180, 180, 180), font=self.font_n)
-        draw.text((445, 220), title, (255, 255, 255), font=self.font_t)
+        # 4. အပေါ်ဘက်တစ်ဝက်တွင် Channel နှင့် Title များကို နေရာတကျ ဖော်ပြခြင်း
+        draw.text((445, 125), channel, (180, 180, 180), font=self.font_n)
+        draw.text((445, 160), title, (255, 255, 255), font=self.font_t)
 
         temp = output.with_name(f"{output.stem}.tmp{output.suffix}")
         image.convert("RGB").save(
