@@ -22,7 +22,7 @@ class Thumbnail:
     def __init__(self):
         self.size = (1280, 720)
         self.fill = (255, 255, 255)
-        # Font အရွယ်အစားများ
+        
         self.font_n = ImageFont.truetype("melody/helpers/Raleway-Bold.ttf", 28)  # Channel
         self.font_t = ImageFont.truetype("melody/helpers/Raleway-Bold.ttf", 44)  # Title
         self.font_c = ImageFont.truetype("melody/helpers/Inter-Light.ttf", 24)   # Logo / Extra text
@@ -114,7 +114,7 @@ class Thumbnail:
         with Image.open(BytesIO(data)) as source:
             source = ImageOps.exif_transpose(source).convert("RGBA")
             
-            # 1. နောက်ခံကို မျက်နှာပြင်အပြည့် Blur လုပ်ခြင်း
+            
             image = ImageOps.fit(
                 source,
                 size,
@@ -122,9 +122,9 @@ class Thumbnail:
                 centering=(0.5, 0.5),
             ).filter(ImageFilter.GaussianBlur(25))
             
-            image = ImageEnhance.Brightness(image).enhance(0.75)
+            image = ImageEnhance.Brightness(image).enhance(0.9)
 
-            # 2. controls.png ကို ပုံ၏ အောက်ဘက်တစ်ဝက် (Y = 360 မှစ၍) တွင် အပြည့်အစုံ ဖော်ပြခြင်း
+            
             try:
                 controls = Image.open("melody/helpers/controls.png").convert("RGBA")
                 controls_resized = controls.resize((1280, 360), Image.Resampling.LANCZOS)
@@ -132,7 +132,7 @@ class Thumbnail:
             except Exception as e:
                 logger.error(f"Controls overlay error: {e}")
 
-            # 3. 🟢 YouTube Thumbnail ပုံငယ်ကို ပိုကြီးပြီး ဘေးဘက် ပိုကျယ်စေခြင်း (Width: 320, Height: 220)
+            
             thumb_w = 350
             thumb_h = 260
             
@@ -144,19 +144,19 @@ class Thumbnail:
             rounded = ImageOps.fit(resize, (thumb_w, thumb_h))
             rounded.putalpha(thumb_mask)
 
-            # Thumbnail paste မည့်နေရာ (X=160, Y=70)
+            
             image.paste(rounded, (160, 70), rounded)
 
-        # စာသားများ သတ်မှတ်ခြင်း
+        
         channel = (song.channel_name or "Myanmar Bots")[:22]
         title = (song.title or "Myanmar Tv")[:22]
 
         draw = ImageDraw.Draw(image)
         
-        # 4. 🟢 ညာဘက်ခြမ်းတွင် Channel၊ Title နှင့် Logo စာသားများကို သပ်ရပ်စွာ နေရာချခြင်း (X နေရာကို 500 သို့ ချိန်ထားခြင်း)
-        draw.text((530, 105), channel, (210, 210, 210), font=self.font_n)     # Channel နာမည်
-        draw.text((530, 145), title, (255, 255, 255), font=self.font_t)       # သီချင်းနာမည် (Title)
-        draw.text((532, 205), "Dev - KHH", (200, 200, 200), font=self.font_c) # Logo စာသား
+        
+        draw.text((530, 110), channel, (210, 210, 210), font=self.font_n)     
+        draw.text((530, 125), title, (255, 255, 255), font=self.font_t)      
+        draw.text((532, 235), "Dev - KHH", (255, 255, 255), font=self.font_c) 
 
         temp = output.with_name(f"{output.stem}.tmp{output.suffix}")
         image.convert("RGB").save(
