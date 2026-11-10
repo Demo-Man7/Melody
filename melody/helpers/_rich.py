@@ -7,7 +7,7 @@
 import re
 from pyrogram import enums, types
 
-from melody import config, logger
+from melody import config, db, logger
 from melody.helpers import utils
 
 
