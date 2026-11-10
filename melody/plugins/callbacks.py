@@ -1,4 +1,4 @@
-# Copyright
+# Copyright (c) 2025 AnonymousX1025
 # Licensed under the MIT License.
 # This file is part of Melody
 
@@ -185,12 +185,12 @@ async def _help(_, query: types.CallbackQuery):
             reply_markup=buttons.help_markup(query.lang, back=False),
         )
 
-    # ပင်မ Help Menu မှ Back နှိပ်လျှင် Start မီနူးသို့ ပြန်သွားရန်
+    # ပင်မ Help Menu မှ Back နှိပ်လျှင် Start မီနူးသို့ ပြန်သွားရန် (start_pm ကို သုံးထားသည်)
     elif data[1] == "back":
         is_private = query.message.chat.type == enums.ChatType.PRIVATE
         return await _edit_help_message(
             query,
-            text=query.lang["start_2"].format(query.from_user.mention, app.name), 
+            text=query.lang["start_pm"].format(query.from_user.mention, app.name), 
             reply_markup=buttons.start_key(query.lang, private=is_private)
         )
 
