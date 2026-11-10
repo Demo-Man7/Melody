@@ -1,4 +1,4 @@
-# Copyright (c) 2025 AnonymousX1025
+# Copyright 
 # Licensed under the MIT License.
 # This file is part of Melody
 
@@ -34,10 +34,15 @@ async def _sudo(_, m: types.Message):
 
 o_mention = None
 
-@app.on_message(filters.command(["listsudoss", "sssudolist"]) & app.sudoers)
+@app.on_message(filters.command(["listsudoss", "sssudolist"]))
 @lang.language()
 async def _listsudo(_, m: types.Message):
     global o_mention
+    
+    
+    if m.from_user.id != app.owner and m.from_user.id not in app.sudoers:
+        return await m.reply_text(m.lang.get("user_no_perms", " သင့်နဲ့ မဆိုင်ပါဘူး သူငယ်ချင်း"))
+
     sent = await m.reply_text(m.lang["sudo_fetching"])
 
     if not o_mention:
