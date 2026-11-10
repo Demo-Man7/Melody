@@ -185,7 +185,7 @@ async def _help(_, query: types.CallbackQuery):
             reply_markup=buttons.help_markup(query.lang, back=False),
         )
 
-    # ပင်မ Help Menu မှ Back နှိပ်လျှင် Start မီနူးသို့ ပြန်သွားရန်
+    
     elif data[1] == "back":
         is_private = query.message.chat.type == enums.ChatType.PRIVATE
         return await _edit_help_message(
@@ -204,7 +204,7 @@ async def _help(_, query: types.CallbackQuery):
     
     elif data[1] == "sudo":
         if query.from_user.id != app.owner and query.from_user.id not in app.sudoers:
-            return await query.answer(query.lang.get("user_no_perms", "ဒါက သင့်နဲ့ မဆိုင်ပါဘူး သူငယ်ချင်း။"), show_alert=True)
+            return await query.answer("ဒါက သင့်နဲ့ မဆိုင်ပါဘူး သူငယ်ချင်း။"), show_alert=True)
 
     
     await _edit_help_message(
