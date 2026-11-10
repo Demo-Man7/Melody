@@ -91,16 +91,19 @@ async def join_assistant(m: types.Message, lang_dict: dict) -> bool:
                 return False
 
         umm = await m.reply_text(lang_dict["play_invite"].format(app.name))
-        await asyncio.sleep(2)
+        await asyncio.sleep(1)
         try:
             result = await client.join_chat(invite_link)
-            # kurigram returns a request object instead of raising here.
             if isinstance(result, types.ChatJoinResultRequestSent):
                 raise errors.InviteRequestSent
         except errors.UserAlreadyParticipant:
             pass
+        except errors.FloodWait as fw:
+            # 🟢 Flood Wait ဖြစ်လာပါက ချက်ချင်းကျော်ဖြတ်ရန်
+            logger.warning(f"FloodWait encountered while joining {chat_id}: {fw.value}s")
+            pass
         except errors.InviteRequestSent:
-            await asyncio.sleep(2)
+            await asyncio.sleep(1)
             try:
                 await app.approve_chat_join_request(chat_id, client.id)
             except errors.HideRequesterMissing:
@@ -111,12 +114,17 @@ async def join_assistant(m: types.Message, lang_dict: dict) -> bool:
                 )
                 return False
         except Exception as ex:
-            logger.error(f"Error joining chat - {chat_id}: {ex}")
-            await umm.edit_text(lang_dict["play_invite_error"].format(type(ex).__name__))
-            return False
+            if "USER_ALREADY_PARTICIPANT" in str(ex):
+                pass
+            else:
+                logger.error(f"Error joining chat - {chat_id}: {ex}")
+                await umm.edit_text(lang_dict["play_invite_error"].format(type(ex).__name__))
+                return False
 
-        await umm.delete()
-        await client.resolve_peer(chat_id)
+        with suppress(Exception):
+            await umm.delete()
+        with suppress(Exception):
+            await client.resolve_peer(chat_id)
     return True
 
 
