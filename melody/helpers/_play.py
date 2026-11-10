@@ -47,24 +47,25 @@ async def join_assistant(m: types.Message, lang_dict: dict) -> bool:
     chat_id = m.chat.id
     client = await db.get_client(chat_id)
 
-    # 🟢 ၁။ အရင်ဆုံး Assistant က ဂရုထဲမှာ ရှိနှင့်ပြီးသားလား တိုက်ရိုက် စစ်ဆေးရန် (Peer Error များကို ဖြတ်တောက်ရန်)
+    # 🟢 ၁။ Assistant က ဂရုထဲမှာ ရှိမရှိ စစ်ဆေးရန်
+    is_joined = True
     try:
         with suppress(Exception):
             await client.resolve_peer(chat_id)
         member = await app.get_chat_member(chat_id, client.id)
-        if member.status not in [
+        if member.status in [
             enums.ChatMemberStatus.BANNED,
             enums.ChatMemberStatus.RESTRICTED,
         ]:
-            return True
-        else:
             with suppress(Exception):
                 await app.unban_chat_member(chat_id=chat_id, user_id=client.id)
-            return True
     except Exception:
-        pass
+        is_joined = False
 
-    # 🟢 ၂။ ဂရုထဲမှာ မရှိမှသာ invite link ရယူပြီး join လုပ်ရန်
+    if is_joined:
+        return True
+
+    # 🟢 ၂။ ဂရုထဲမှာ မရှိသေးပါက invite link ရယူပြီး join လုပ်ရန်
     try:
         if m.chat.username:
             invite_link = m.chat.username
@@ -91,7 +92,6 @@ async def join_assistant(m: types.Message, lang_dict: dict) -> bool:
         except errors.UserAlreadyParticipant:
             pass
         except errors.FloodWait:
-            # FloodWait တက်လာပါက အချိန်မဆွဲဘဲ ချက်ချင်း ကျော်ဖြတ်ရန်
             pass
         except errors.InviteRequestSent:
             await asyncio.sleep(1)
