@@ -4,8 +4,8 @@
 
 
 import asyncio
-from urllib.parse import urlparse
 from contextlib import suppress
+from urllib.parse import urlparse
 
 from pyrogram import enums, errors, types
 
@@ -46,37 +46,30 @@ async def join_assistant(m: types.Message, lang_dict: dict) -> bool:
     """
     chat_id = m.chat.id
     client = await db.get_client(chat_id)
+
+    # 🟢 ၁။ အရင်ဆုံး Assistant က ဂရုထဲမှာ ရှိနှင့်ပြီးသားလား တိုက်ရိုက် စစ်ဆေးရန် (Peer Error များကို ဖြတ်တောက်ရန်)
     try:
+        with suppress(Exception):
+            await client.resolve_peer(chat_id)
         member = await app.get_chat_member(chat_id, client.id)
-        if member.status in [
+        if member.status not in [
             enums.ChatMemberStatus.BANNED,
             enums.ChatMemberStatus.RESTRICTED,
         ]:
-            try:
+            return True
+        else:
+            with suppress(Exception):
                 await app.unban_chat_member(chat_id=chat_id, user_id=client.id)
-            except Exception as ex:
-                logger.error(f"Failed to unban assistant in {chat_id}: {ex}")
-                await m.reply_text(
-                    lang_dict["play_banned"].format(
-                        app.name,
-                        client.id,
-                        client.mention,
-                        f"@{client.username}" if client.username else None,
-                    )
-                )
-                return False
-    except errors.ChatAdminRequired:
-        await m.reply_text(lang_dict["admin_required"])
-        return False
-    # Fresh sessions have no peer cache, so resolve_peer fails —
-    # treat as "not a participant" and invite.
-    except (errors.UserNotParticipant, errors.PeerIdInvalid):
+            return True
+    except Exception:
+        pass
+
+    # 🟢 ၂။ ဂရုထဲမှာ မရှိမှသာ invite link ရယူပြီး join လုပ်ရန်
+    try:
         if m.chat.username:
             invite_link = m.chat.username
-            try:
+            with suppress(Exception):
                 await client.resolve_peer(invite_link)
-            except Exception as ex:
-                logger.warning(f"resolve_peer failed for {chat_id}: {ex}")
         else:
             try:
                 invite_link = (await app.get_chat(chat_id)).invite_link
@@ -85,47 +78,36 @@ async def join_assistant(m: types.Message, lang_dict: dict) -> bool:
             except errors.ChatAdminRequired:
                 await m.reply_text(lang_dict["admin_required"])
                 return False
-            except Exception as ex:
-                await m.reply_text(
-                    lang_dict["play_invite_error"].format(type(ex).__name__)
-                )
-                return False
+            except Exception:
+                return True
 
         umm = await m.reply_text(lang_dict["play_invite"].format(app.name))
         await asyncio.sleep(1)
+        
         try:
             result = await client.join_chat(invite_link)
             if isinstance(result, types.ChatJoinResultRequestSent):
                 raise errors.InviteRequestSent
         except errors.UserAlreadyParticipant:
             pass
-        except errors.FloodWait as fw:
-            # 🟢 Flood Wait ဖြစ်လာပါက ချက်ချင်းကျော်ဖြတ်ရန်
-            logger.warning(f"FloodWait encountered while joining {chat_id}: {fw.value}s")
+        except errors.FloodWait:
+            # FloodWait တက်လာပါက အချိန်မဆွဲဘဲ ချက်ချင်း ကျော်ဖြတ်ရန်
             pass
         except errors.InviteRequestSent:
             await asyncio.sleep(1)
-            try:
+            with suppress(Exception):
                 await app.approve_chat_join_request(chat_id, client.id)
-            except errors.HideRequesterMissing:
-                pass
-            except Exception as ex:
-                await umm.edit_text(
-                    lang_dict["play_invite_error"].format(type(ex).__name__)
-                )
-                return False
         except Exception as ex:
-            if "USER_ALREADY_PARTICIPANT" in str(ex):
-                pass
-            else:
+            if "USER_ALREADY_PARTICIPANT" not in str(ex):
                 logger.error(f"Error joining chat - {chat_id}: {ex}")
-                await umm.edit_text(lang_dict["play_invite_error"].format(type(ex).__name__))
-                return False
 
         with suppress(Exception):
             await umm.delete()
         with suppress(Exception):
             await client.resolve_peer(chat_id)
+    except Exception:
+        pass
+        
     return True
 
 
