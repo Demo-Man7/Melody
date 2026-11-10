@@ -41,7 +41,7 @@ async def _listsudo(_, m: types.Message):
     
     
     if m.from_user.id != app.owner and m.from_user.id not in app.sudoers:
-        return await m.reply_text(m.lang.get("user_no_perms", " သင့်နဲ့ မဆိုင်ပါဘူး သူငယ်ချင်း"))
+        return await m.reply_text("သင့်နဲ့ မဆိုင်ပါဘူး သူငယ်ချင်း။")
 
     sent = await m.reply_text(m.lang["sudo_fetching"])
 
