@@ -1,4 +1,4 @@
-# Copyright (c) 2025 AnonymousX1025
+# Copyright
 # Licensed under the MIT License.
 # This file is part of Melody
 
@@ -174,14 +174,26 @@ async def _help(_, query: types.CallbackQuery):
         return await _edit_help_message(
             query,
             text=query.lang["help_menu"],
-            reply_markup=buttons.help_markup(query.lang),
+            reply_markup=buttons.help_markup(query.lang, back=False),
         )
 
-    if data[1] == "back":
+    # Sub-menu ထဲမှ Back နှိပ်လျှင် ပင်မ Help Menu သို့ ပြန်သွားရန်
+    if data[1] == "main":
         return await _edit_help_message(
             query,
-            text=query.lang["help_menu"], reply_markup=buttons.help_markup(query.lang)
+            text=query.lang["help_menu"],
+            reply_markup=buttons.help_markup(query.lang, back=False),
         )
+
+    # ပင်မ Help Menu မှ Back နှိပ်လျှင် Start မီနူးသို့ ပြန်သွားရန်
+    elif data[1] == "back":
+        is_private = query.message.chat.type == enums.ChatType.PRIVATE
+        return await _edit_help_message(
+            query,
+            text=query.lang["start_2"].format(query.from_user.mention, app.name), 
+            reply_markup=buttons.start_key(query.lang, private=is_private)
+        )
+
     elif data[1] == "close":
         try:
             await query.message.delete()
@@ -189,10 +201,11 @@ async def _help(_, query: types.CallbackQuery):
         except Exception:
             return
 
+    # Sub-menu များကို ပြရန်
     await _edit_help_message(
         query,
         text=query.lang[f"help_{data[1]}"],
-        reply_markup=buttons.help_markup(query.lang, True),
+        reply_markup=buttons.help_markup(query.lang, back=True),
     )
 
 
