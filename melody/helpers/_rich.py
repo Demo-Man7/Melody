@@ -38,7 +38,7 @@ def build_np(
     played: str = None,
     thumb: str = None,
     photo: bool = True,
-    autoplay: bool = False,  # 🟢 Autoplay အခြေအနေ လက်ခံရန်
+    autoplay: bool = False, 
 ):
     """Build the rich now-playing panel for `media`.
 
@@ -113,8 +113,8 @@ def build_np(
         )
     )
 
-    # 🟢 အောက်ဆုံးတန်းတွင် Autoplay ခလုတ် ထည့်သွင်းခြင်း[span_3](start_span)[span_3](end_span)
-    ap_text = "Autoplay: ON ✅" if autoplay else "Autoplay: OFF ❌"
+    
+    ap_text = "Aᴜᴛᴏᴘʟᴀʏ: ON" if autoplay else "Aᴜᴛᴏᴘʟᴀʏ: OFF"
     blocks.append(
         types.InputRichBlockButtons(
             buttons=[
