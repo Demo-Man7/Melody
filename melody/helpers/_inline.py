@@ -1,4 +1,4 @@
-# Copyright (c) 2025 AnonymousX1025
+# Copyright
 # Licensed under the MIT License.
 # This file is part of Melody
 
@@ -103,7 +103,7 @@ class Inline:
                     self._button(
                         text=_lang.get("back", "Back"),
                         category="nav",
-                        callback_data="help back",
+                        callback_data="help main",
                     ),
                     self._button(
                         text=_lang.get("close", "Close"),
@@ -133,7 +133,7 @@ class Inline:
             
             rows = [buttons[i : i + 2] for i in range(0, len(buttons), 2)]
             
-            
+            # ပင်မ Help Menu ၏ Back ခလုတ် (Start မီနူးသို့ ပြန်ရန်)
             rows.append(
                 [
                     self._button(
