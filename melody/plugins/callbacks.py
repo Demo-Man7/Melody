@@ -34,7 +34,7 @@ async def cancel_dl(_, query: types.CallbackQuery):
 @can_manage_vc
 async def _controls(_, query: types.CallbackQuery):
     args = query.data.split()
-    actions = {"status", "pause", "resume", "skip", "force", "replay", "stop"}
+    actions = {"status", "pause", "resume", "skip", "force", "replay", "stop", "toggle_autoplay"}
     if len(args) < 3 or args[1] not in actions:
         return await query.answer()
     if args[1] == "force" and len(args) != 4:
@@ -49,6 +49,13 @@ async def _controls(_, query: types.CallbackQuery):
         return await query.answer(query.lang["user_no_perms"], show_alert=True)
     qaction = len(args) == 4
     user = query.from_user.mention
+
+    if action == "toggle_autoplay":
+        _autoplay = await db.get_autoplay(chat_id)
+        _autoplay = not _autoplay
+        await db.set_autoplay(chat_id, _autoplay)
+        await _rich.refresh_np(chat_id, message=query.message)
+        return await query.answer(f"Autoplay is now {'ON ✅' if _autoplay else 'OFF ❌'}", show_alert=True)
 
     if not await db.get_call(chat_id):
         try:
@@ -185,7 +192,6 @@ async def _help(_, query: types.CallbackQuery):
             reply_markup=buttons.help_markup(query.lang, back=False),
         )
 
-    # ပင်မ Help Menu မှ Back နှိပ်လျှင် Start မီနူးသို့ ပြန်သွားရန် (start_pm ကို သုံးထားသည်)
     elif data[1] == "back":
         is_private = query.message.chat.type == enums.ChatType.PRIVATE
         return await _edit_help_message(
@@ -201,7 +207,10 @@ async def _help(_, query: types.CallbackQuery):
         except Exception:
             return
 
-    # Sub-menu များကို ပြရန်
+    elif data[1] == "sudo":
+        if query.from_user.id != app.owner and query.from_user.id not in app.sudoers:
+            return await query.answer("ဒါက သင့်နဲ့ မဆိုင်ပါဘူး သူငယ်ချင်း။", show_alert=True)
+
     await _edit_help_message(
         query,
         text=query.lang[f"help_{data[1]}"],
